@@ -32,7 +32,6 @@ $python ./prepare.py
 アンケート
 ---------
 
-ロゴどれがいいですか??
+ロゴ
 
-![logo1 by makocchi](logos/blackbird.png)
-![logo2 by makocchi](logos/blackbird2.png)
+![logo3 by makocchi](logos/blackbird3.png)

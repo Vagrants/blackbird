@@ -1,0 +1,4 @@
+blackbird
+=========
+
+Zabbix sender daemon

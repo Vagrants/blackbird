@@ -1,0 +1,4 @@
+graft scripts
+prune scripts/build
+graft blackbird
+prune blackbird/conf

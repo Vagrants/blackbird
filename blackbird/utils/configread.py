@@ -268,7 +268,6 @@ class ConfigReader(base.Subject):
             "user = user(default=bbd)",
             "group = group(default=bbd)",
             "module_dir = dir()",
-            "pid_file = pid(default=/var/run/blackbird/blackbird.pid)",
             "log_file = log(default=/var/log/blackbird/blackbird.log)",
             "log_level = log_level(default='warn')"
         )
@@ -277,7 +276,6 @@ class ConfigReader(base.Subject):
             'user': is_user,
             'group': is_group,
             'dir': extend_is_dir,
-            'pid': is_pid,
             'log': is_log,
             'log_level': is_log_level
         }
@@ -298,7 +296,6 @@ class ConfigReader(base.Subject):
             ('user', is_user),
             ('group', is_group),
             ('module_dir', extend_is_dir),
-            ('pid_file', is_pid),
             ('log_file', is_log)
         )
 

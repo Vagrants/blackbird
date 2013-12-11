@@ -23,4 +23,9 @@ def get_args():
                         help='Turn on debug mode'
                         )
 
+    parser.add_argument('--pid_file', '-p',
+                        default='/var/run/blackbird/blackbird.pid',
+                        help='pid file location'
+                        )
+
     return parser.parse_args()

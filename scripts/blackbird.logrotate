@@ -1,0 +1,8 @@
+/var/log/blackbird/*log {
+    daily
+    missingok
+    dateext
+    notifempty
+    copytruncate
+    delaycompress
+}

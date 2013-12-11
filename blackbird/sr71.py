@@ -58,7 +58,7 @@ class BlackBird(object):
 
         log_file = open(self.config['global']['log_file'], 'a+', 0)
         self.logger.info('stated  process main')
-        pid_file = pidlockfile.PIDLockFile(self.config['global']['pid_file'])
+        pid_file = pidlockfile.PIDLockFile(ARGS.pid_file)
 
         if not ARGS.debug_mode:
             with DaemonContext(

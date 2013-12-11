@@ -1,0 +1,2 @@
+#pid file location of blackbird
+BLACKBIRD_PID_FILE=/var/run/blackbird/blackbird.pid

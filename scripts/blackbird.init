@@ -1,0 +1,60 @@
+#!/bin/sh
+#
+# chkconfig:   - 99 01
+# description: This scripts turns blackbird on/off
+# processname: blackbird
+# config:      /etc/blackbird/defaults.cfg
+#
+
+. /etc/rc.d/init.d/functions
+. /etc/sysconfig/blackbird
+
+RETVAL=0
+
+start() {
+    echo -n $"Stating blackbird: "
+    /usr/bin/blackbird -c /etc/blackbird/defaults.cfg -p "$BLACKBIRD_PID_FILE"
+    RETVAL=$?
+    if [ $RETVAL -eq 0 ] ; then
+        success
+        touch /var/lock/subsys/blackbird
+    else
+        failure
+    fi
+    echo
+}
+
+stop() {
+    echo -n $"Stopping blackbird: "
+    killproc -p "$BLACKBIRD_PID_FILE"
+    RETVAL=$?
+    if [ $RETVAL -eq 0 ] ; then
+        success
+        rm -f /var/lock/subsys/blackbird
+    else
+        failure
+    fi
+    echo
+}
+
+restart() {
+    stop
+    start
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart)
+    restart
+    ;;
+  *)
+    echo $"Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit $RETVAL

@@ -26,7 +26,7 @@ Prefix: %{_prefix}
 BuildArch: noarch
 Vendor: ARASHI, Jumpei <jumpei.arashi@arashike.com>
 Packager: ARASHI, Jumpei <jumpei.arashi@arashike.com>
-Requires: python-argparse python-configobj python-daemon python-ipaddr python-lockfile python-redis python-requests python-setuptools
+Requires: python-argparse python-configobj python-daemon python-ipaddr python-lockfile python-setuptools
 Url: https://github.com/Vagrants/blackbird.git
 BuildRequires: python-setuptools
 

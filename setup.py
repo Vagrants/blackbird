@@ -12,7 +12,7 @@ setup(
     description='Daemon monitoring each middleware by using ZABBIX-SENDER',
     author='ARASHI, Jumpei',
     author_email='jumpei.arashi@arashike.com',
-    url='http://ghe.amb.ca.local/Unified/blackbird',
+    url='https://github.com/Vagrants/blackbird',
     packages=[
         'blackbird',
         'blackbird.plugins',

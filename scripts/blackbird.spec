@@ -11,7 +11,7 @@
 %define blackbird_gid 187
 %define log_dir %{_var}/log/blackbird
 %define pid_dir %{_var}/run/blackbird
-%define include_cfg_dir %{_sysconfdir}/blackbird/conf.d/
+%define include_cfg_dir %{_sysconfdir}/blackbird/conf.d
 %define plugins /opt/blackbird/plugins/
 
 Summary: Daemon monitoring each middleware by using ZABBIX-SENDER
@@ -25,9 +25,9 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
 BuildArch: noarch
 Vendor: ARASHI, Jumpei <jumpei.arashi@arashike.com>
-Packager: infra-unified <infra-unified@cyberagent.co.jp>
+Packager: ARASHI, Jumpei <jumpei.arashi@arashike.com>
 Requires: python-argparse python-configobj python-daemon python-ipaddr python-lockfile python-redis python-requests python-setuptools
-Url: http://ghe.amb.ca.local/Unified/blackbird
+Url: https://github.com/Vagrants/blackbird.git
 BuildRequires: python-setuptools
 
 %description

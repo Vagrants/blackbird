@@ -132,3 +132,26 @@ class ValidatorBase(object):
             return socket.gethostbyaddr(addr)
         else:
             return socket.gethostname()
+
+class Timer(object):
+    """
+    TImer Context mansger class.
+    Usage:
+        with Timer() as timer:
+            YOUR_EXECUTE
+
+        print timer.sec
+        print timer.msec
+    """
+
+    def __init__(self):
+        pass
+
+    def __enter__(self):
+        self.start = time.time()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.end = time.time()
+        self.sec = self.end - self.start
+        self.msec = self.sec * 1000

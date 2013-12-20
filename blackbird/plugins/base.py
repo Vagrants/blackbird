@@ -5,6 +5,7 @@ u"""Various Base objects"""
 
 import abc
 import datetime
+import math
 import socket
 import time
 
@@ -154,4 +155,6 @@ class Timer(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.end = time.time()
         self.sec = self.end - self.start
+        self.sec = str(round(self.sec ,4))
         self.msec = self.sec * 1000
+        self.msec = str(round(self.msec ,4))

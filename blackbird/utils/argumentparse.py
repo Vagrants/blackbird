@@ -18,14 +18,16 @@ def get_args():
                         help='Specify "defaults.cfg" file'
                         )
 
-    parser.add_argument('--debug_mode', '-d',
+    parser.add_argument('--debug-mode', '-d',
                         action='store_true',
                         help='Turn on debug mode'
+                        dest='debug_mode'
                         )
 
-    parser.add_argument('--pid_file', '-p',
+    parser.add_argument('--pid-file', '-p',
                         default='/var/run/blackbird/blackbird.pid',
-                        help='pid file location'
+                        help='pid file location',
+                        dest='pid_file'
                         )
 
     parser.add_argument('--ignore-plugindir', '-P',

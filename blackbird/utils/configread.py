@@ -19,6 +19,9 @@ from distutils.sysconfig import get_python_lib
 
 from blackbird.utils import base as base
 from blackbird.utils import helpers
+from blackbird.utils import argumentparse
+
+ARGS = argumentparse.get_args()
 
 
 class JobObserver(base.Observer):
@@ -263,14 +266,22 @@ class ConfigReader(base.Subject):
         When validation, 'is_egg' function is called for ham option.
         """
 
-        raw_spec = (
-            "[global]",
-            "user = user(default=bbd)",
-            "group = group(default=bbd)",
-            "module_dir = dir()",
-            "log_file = log(default=/var/log/blackbird/blackbird.log)",
-            "log_level = log_level(default='warn')"
-        )
+        if ARGS.ignore_plugindir:
+            raw_spec = (
+                "[global]",
+                "user = user(default=bbd)",
+                "group = group(default=bbd)",
+                "log_file = log(default=/var/log/blackbird/blackbird.log)",
+                "log_level = log_level(default='warn')"
+            )
+        else:
+            raw_spec = (
+                "[global]",
+                "user = user(default=bbd)",
+                "group = group(default=bbd)",
+                "log_file = log(default=/var/log/blackbird/blackbird.log)",
+                "log_level = log_level(default='warn')"
+            )
 
         functions = {
             'user': is_user,
@@ -292,12 +303,19 @@ class ConfigReader(base.Subject):
         global_dict = {}
 
         #conbination of key at global section and validate function.
-        key_and_func = (
-            ('user', is_user),
-            ('group', is_group),
-            ('module_dir', extend_is_dir),
-            ('log_file', is_log)
-        )
+        if ARGS.ignore_plugindir:
+            key_and_func = (
+                ('user', is_user),
+                ('group', is_group),
+                ('log_file', is_log)
+            )
+        else:
+            key_and_func = (
+                ('user', is_user),
+                ('group', is_group),
+                ('module_dir', extend_is_dir),
+                ('log_file', is_log)
+            )
 
         for key, func in key_and_func:
             if key in self.config['global'].keys():

@@ -28,4 +28,10 @@ def get_args():
                         help='pid file location'
                         )
 
+    parser.add_argument('--ignore-plugindir', '-P',
+                        action='store_true',
+                        dest='ignore_plugindir',
+                        help='Don\'t check to exists plugin dir.'
+                        )
+
     return parser.parse_args()

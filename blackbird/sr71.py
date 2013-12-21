@@ -35,7 +35,7 @@ class BlackBird(object):
         self.config = CONFIG
         self.logger = self._set_logger()
         self.queue = Queue.Queue()
-        self.threads = []
+        self.jobs = None
 
         self._create_threads()
 
@@ -52,13 +52,27 @@ class BlackBird(object):
 
         creater = JobCreater(self.config, JOBS.jobs, self.queue, self.logger)
 
-        self.threads.extend(creater.job_factory())
+        self.jobs = creater.job_factory()
 
     def start(self):
 
         log_file = open(self.config['global']['log_file'], 'a+', 0)
         self.logger.info('stated  process main')
         pid_file = pidlockfile.PIDLockFile(ARGS.pid_file)
+
+        def main_loop():
+            while True:
+                current = threading.currentThread()
+                for job_name, job_obj in self.jobs.items():
+                    if not job_name in [thread.name for thread in threading.enumerate()]:
+                        if 'interval' in job_obj.options:
+                            interval = job_obj.options['interval']
+                        else: interval = 10
+                        new_thread = Executer(job_obj, job_name, interval)
+                        new_thread.start()
+                        new_thread.join(1)
+                    else:
+                        thread.join(1)
 
         if not ARGS.debug_mode:
             with DaemonContext(
@@ -71,20 +85,10 @@ class BlackBird(object):
                 stderr=log_file,
                 pidfile=pid_file
             ):
-                for thread in self.threads:
-                    thread.start()
-
-                while True:
-                    for thread in self.threads:
-                        thread.join(1)
+                main_loop()
 
         else:
-            for thread in self.threads:
-                thread.start()
-
-            while True:
-                for thread in self.threads:
-                    thread.join(1)
+            main_loop()
 
 
 class JobCreater(object):
@@ -107,7 +111,7 @@ class JobCreater(object):
         Return list of threads.
         """
 
-        threads = []
+        jobs = dict()
 
         for section, options in self.config.items():
 
@@ -118,20 +122,10 @@ class JobCreater(object):
             #In the other sections are global,
             #that there is a "module" option is collateral.
             name = options['module']
-
             job_kls = self.jobs[name]
-            job_obj = job_kls(options, self.queue, self.logger)
+            jobs[section] = job_kls(options, self.queue, self.logger)
 
-            if 'interval' in options:
-                threads.append(Executer(job_obj,
-                                        name=section,
-                                        interval=options['interval']
-                                        )
-                               )
-
-            else:
-                threads.append(Executer(job_obj, name=section))
-        return threads
+        return jobs
 
 
 class Executer(threading.Thread):
@@ -144,22 +138,16 @@ class Executer(threading.Thread):
 
     Executer get the data every 30 seconds.
     """
-    def __init__(self,
-                 job,
-                 name=None,
-                 interval=10
-                 ):
+    def __init__(self, job, name, interval):
         threading.Thread.__init__(self, name=name)
         self.setDaemon(True)
-
         self.job = job
         self.interval = interval
 
     def run(self):
         while True:
-            self.job.looped_method()
-
             time.sleep(self.interval)
+            self.job.looped_method()
 
 
 def main():

@@ -20,7 +20,7 @@ def get_args():
 
     parser.add_argument('--debug-mode', '-d',
                         action='store_true',
-                        help='Turn on debug mode'
+                        help='Turn on debug mode',
                         dest='debug_mode'
                         )
 

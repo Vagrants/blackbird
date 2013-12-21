@@ -64,11 +64,13 @@ class ConcreteJob(base.JobBase):
                 else:
                     self.body['data'].append(item.data)
             # debug
-            self.logger.debug(self.body)
+            self.logger.debug(self.body['data'])
 
             try: 
-                self.send(conn)
-                self.logger.debug(self.get_result())
+                print len(self.body['data'])
+                if len(self.body['data']) != 0:
+                    self.send(conn)
+                    self.logger.debug(self.get_result())
             except:
                 self._reverse_queue()
                 self.logger.debug(
@@ -92,17 +94,17 @@ class ConcreteJob(base.JobBase):
         request = json.dumps(self.body, ensure_ascii=False).encode('utf-8')
         fmt = '<4sBQ' + str(len(request)) + 's'
         data = struct.pack(fmt, 'ZBXD', 1, len(request), request)
-
+ 
         writer = sock.makefile('wb')
         writer.write(data)
         writer.close()
-
+ 
         reader = sock.makefile('rb')
         response = reader.read()
         reader.close()
-
+ 
         sock.close()
-
+ 
         fmt = '<4sBQ' + str(len(response) - struct.calcsize('<4sBQ')) + 's'
         self.result = struct.unpack(fmt, response)
 

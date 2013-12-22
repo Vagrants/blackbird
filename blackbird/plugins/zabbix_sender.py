@@ -66,8 +66,11 @@ class ConcreteJob(base.JobBase):
             # debug
             self.logger.debug(self.body['data'])
 
-            try: 
-                print len(self.body['data'])
+            try:
+                log_message = (
+                    'Queue length is {0}'.format(len(self.body['data']))
+                )
+                self.logger.debug(log_message)
                 if len(self.body['data']) != 0:
                     self.send(conn)
                     self.logger.debug(self.get_result())

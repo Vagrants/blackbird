@@ -26,9 +26,8 @@ CONFIG = configread.ConfigReader(ARGS.config, JOBS).config
 class BlackBird(object):
     """
     BlackBird is main process.
-    utils/configread parse and read config file,
-    collect job(thread) that is written in config file.
-    This process make the start of each jobs(threads).
+    'utils/configread' module parses and read config file,
+    collects job that is written in config file.
     """
 
     def __init__(self):
@@ -46,28 +45,31 @@ class BlackBird(object):
         return logger_obj
 
     def _create_threads(self):
-        u"""
-        This method create threads from self.jobs.
+        """
+        This method creates job instances.
         """
 
         creater = JobCreater(self.config, JOBS.jobs, self.queue, self.logger)
-
         self.jobs = creater.job_factory()
 
     def start(self):
+        """
+        main loop.
+        """
 
         log_file = open(self.config['global']['log_file'], 'a+', 0)
-        self.logger.info('stated  process main')
+        self.logger.info('started main process')
         pid_file = pidlockfile.PIDLockFile(ARGS.pid_file)
 
         def main_loop():
             while True:
-                current = threading.currentThread()
+                threadnames = [thread.name for thread in threading.enumerate()]
                 for job_name, job_obj in self.jobs.items():
-                    if not job_name in [thread.name for thread in threading.enumerate()]:
+                    if not job_name in threadnames:
                         if 'interval' in job_obj.options:
                             interval = job_obj.options['interval']
-                        else: interval = 10
+                        else:
+                            interval = 10
                         new_thread = Executer(job_obj, job_name, interval)
                         new_thread.start()
                         new_thread.join(1)
@@ -92,9 +94,9 @@ class BlackBird(object):
 
 
 class JobCreater(object):
-    u"""
+    """
     JobFactory class.
-    job class(ConcreteJob) -> job instance(threads that BlackBird starts).
+    This class creates job instance from job class(ConcreteJob).
     """
 
     def __init__(self, config, jobs, queue, logger):
@@ -104,8 +106,7 @@ class JobCreater(object):
         self.logger = logger
 
     def job_factory(self):
-        u"""
-        This method is Factory method.
+        """
         Take list of jobs and queue as arguments.
         list of jobs is list of "ConcreteJob" classes.
         Return list of threads.
@@ -129,7 +130,7 @@ class JobCreater(object):
 
 
 class Executer(threading.Thread):
-    u"""
+    """
     job executer class.
     "interval" argument is interval of getting data.
 

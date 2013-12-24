@@ -3,7 +3,7 @@
 %define name blackbird
 %define version 0.2.0
 %define unmangled_version %{version}
-%define release 1%{dist}
+%define release 2%{dist}
 %define blackbird_user bbd
 %define blackbird_uid 187
 %define blackbird_group bbd
@@ -93,6 +93,9 @@ service %{name} stop > /dev/null 2>&1 || \
 %config(noreplace) %{_sysconfdir}/logrotate.d/blackbird
 
 %changelog
+* Tue Dec 24 2013 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.2.0-2
+- Update Timer Context
+
 * Tue Dec 24 2013 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.2.0-1
 - each plugins to RPM (separate with blackbird)
 - implement thread pool

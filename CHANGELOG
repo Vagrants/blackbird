@@ -1,3 +1,6 @@
+* Tue Dec 24 2013 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.2.0-2
+- Update Timer Context
+
 * Tue Dec 24 2013 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.2.0-1
 - each plugins to RPM (separate with blackbird)
 - implement thread pool

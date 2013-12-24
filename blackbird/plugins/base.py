@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-u"""Various Base objects"""
+"""Various Base objects"""
 
 import abc
 import datetime
+import json
 import math
 import socket
 import time
+
 
 class JobBase(object):
     u"""Based ConcreteJob"""
@@ -21,13 +23,15 @@ class JobBase(object):
 
     @abc.abstractmethod
     def looped_method(self):
-        u"""Called by "Executer".
+        """Called by "Executer".
         This method implemented by derived class
         """
         raise NotImplementedError
 
+
 class ItemBase(object):
-    u"""Base class of the item to be enqueued.
+    """
+    Base class of the item to be enqueued.
     This class has row value(key, value...and more).
     When it is dequeue, it assemble appropriate format.
     """
@@ -54,7 +58,8 @@ class ItemBase(object):
         self._data['clock'] = self.clock
 
     def __set_timestamp(self, clock):
-        u"""If "clock" is None, set the time now.
+        """
+        If "clock" is None, set the time now.
         This function is called self.__init__()
         """
         if clock == None:
@@ -65,6 +70,52 @@ class ItemBase(object):
 
         else:
             return clock
+
+
+class DiscoveryItem(ItemBase):
+    """
+    Low Level Discovery item.
+    LLD item has following json format:
+        {
+            'host': 'exmaple.com',
+            'value': {
+                'data': [{'{#MACRO_NAME}': 'hogehoge001'}, {'{#MACRO_NAME}': 'hogehoge002'}],
+            'key': 'YOUR_LLD_KEYNAME',
+            'clock': 946652400
+        }
+
+    "value" argument must be list or tuple type object which has dictionaries.
+    e.x:
+        item = DiscoveryItem(
+            key='sample.LLD',
+            value=[
+                {'{#HOSTNAME}': 'hogehoge.com'},
+                {'{#HOSTNAME}': 'hogehoge.org'}
+            ],
+            host='YOUR_ZABBIX_HOSTNAME'
+        )
+    """
+
+    def __init__(self, key, value, host, clock=None):
+        super(DiscoveryItem, self).__init__(key, value, host)
+
+        self.__data = dict()
+        self._generate()
+
+    @property
+    def data(self):
+        return self.__data
+
+    def _generate(self):
+        self.__data['host'] = self.host
+        self.__data['clock'] = self.clock
+        self.__data['key'] = self.key
+
+        value = {
+            'data': self.value
+        }
+        self.__data['value'] = json.dumps(value)
+
 
 class ValidatorBase(object):
     u"""

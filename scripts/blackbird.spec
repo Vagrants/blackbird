@@ -1,10 +1,9 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 %define name blackbird
-%define version 0.1.2
-%define unmangled_version 0.1.2
-%define unmangled_version 0.1.2
-%define release 1%{dist}
+%define version 0.2.0
+%define unmangled_version %{version}
+%define release 2%{dist}
 %define blackbird_user bbd
 %define blackbird_uid 187
 %define blackbird_group bbd
@@ -94,6 +93,14 @@ service %{name} stop > /dev/null 2>&1 || \
 %config(noreplace) %{_sysconfdir}/logrotate.d/blackbird
 
 %changelog
+* Tue Dec 24 2013 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.2.0-2
+- Update Timer Context
+
+* Tue Dec 24 2013 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.2.0-1
+- each plugins to RPM (separate with blackbird)
+- implement thread pool
+- add '-P' option for developer
+
 * Tue Dec 10 2013 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.1.2-1
 - Added /etc/sysconfig/blackbird
 

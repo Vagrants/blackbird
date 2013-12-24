@@ -205,7 +205,9 @@ class Timer(object):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.end = time.time()
-        self.sec = self.end - self.start
-        self.sec = str(round(self.sec ,4))
-        self.msec = self.sec * 1000
-        self.msec = str(round(self.msec ,4))
+        diff = self.end - self.start
+        if diff < 0:
+            diff = 0
+
+        self.sec = str(round(diff, 4))
+        self.msec = str(round(diff * 1000, 4))

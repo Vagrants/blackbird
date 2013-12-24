@@ -8,7 +8,7 @@ except ImportError:
 
 setup(
     name='blackbird',
-    version='0.1.2',
+    version='0.2.0',
     description='Daemon monitoring each middleware by using ZABBIX-SENDER',
     author='ARASHI, Jumpei',
     author_email='jumpei.arashi@arashike.com',

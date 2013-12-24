@@ -1,3 +1,8 @@
+* Tue Dec 24 2013 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.2.0-1
+- each plugins to RPM (separate with blackbird)
+- implement thread pool
+- add '-P' option for developer
+
 * Tue Dec 10 2013 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.1.2-1
 - Added /etc/sysconfig/blackbird
 

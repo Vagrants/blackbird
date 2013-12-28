@@ -117,7 +117,7 @@ class DiscoveryItem(ItemBase):
         self.__data['value'] = json.dumps(value)
 
 
-class BlackbirdError(Exception):
+class BlackbirdPluginError(Exception):
     """
     blackbird error object.
     When an error occurs in plugin module,

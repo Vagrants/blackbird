@@ -117,6 +117,20 @@ class DiscoveryItem(ItemBase):
         self.__data['value'] = json.dumps(value)
 
 
+class BlackbirdError(Exception):
+    """
+    blackbird error object.
+    When an error occurs in plugin module,
+    you should not raise built-in errors but this error.
+    """
+
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return self.message
+
+
 class ValidatorBase(object):
     u"""
     Base class of each "plugins/hoge_module"'s Validator.

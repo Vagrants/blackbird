@@ -3,6 +3,7 @@
 """main process."""
 
 import Queue
+import sys
 import threading
 import time
 from daemon import DaemonContext
@@ -39,9 +40,14 @@ class BlackBird(object):
         self._create_threads()
 
     def _set_logger(self):
-        logger_obj = logger.logger_factory(self.config['global']['log_file'],
-                                           self.config['global']['log_level']
-                                           )
+        if ARGS.debug_mode:
+            logger_obj = logger.logger_factory(sys.stdout,
+                                               'debug'
+                                               )
+        else:
+            logger_obj = logger.logger_factory(self.config['global']['log_file'],
+                                               self.config['global']['log_level']
+                                               )
         return logger_obj
 
     def _create_threads(self):

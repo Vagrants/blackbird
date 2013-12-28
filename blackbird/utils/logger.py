@@ -3,6 +3,7 @@
 
 import logging
 import logging.handlers
+import sys
 
 
 def logger_factory(filename, level, fmt='ltsv'):
@@ -18,7 +19,10 @@ def logger_factory(filename, level, fmt='ltsv'):
     }
     logger.setLevel(levels.get(level))
 
-    handler = logging.handlers.WatchedFileHandler(filename, encoding='UTF-8', delay=True)
+    if filename == sys.stdout:
+        handler = logging.StreamHandler(filename)
+    else:
+        handler = logging.handlers.WatchedFileHandler(filename, encoding='UTF-8', delay=True)
     formats = {
         'ltsv': ("log_level:%(levelname)s\t"
                  "time:%(asctime)s\t"

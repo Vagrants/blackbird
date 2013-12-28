@@ -209,5 +209,5 @@ class Timer(object):
         if diff < 0:
             diff = 0
 
-        self.sec = str(round(diff, 4))
-        self.msec = str(round(diff * 1000, 4))
+        self.sec = str(round(diff, 6))
+        self.msec = str(round(diff * 1000, 6))

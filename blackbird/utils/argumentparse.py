@@ -2,6 +2,7 @@
 # -*- coding:utf-8 -*-
 
 import argparse
+import os
 
 
 def get_args():
@@ -25,7 +26,10 @@ def get_args():
                         )
 
     parser.add_argument('--pid-file', '-p',
-                        default='/var/run/blackbird/blackbird.pid',
+                        default=os.path.join(
+                            os.path.abspath(os.path.curdir),
+                            'blackbird.pid'
+                        ),
                         help='pid file location',
                         dest='pid_file'
                         )

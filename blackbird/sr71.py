@@ -11,6 +11,7 @@ from daemon import DaemonContext
 from blackbird.utils import argumentparse
 from blackbird.utils import configread
 from blackbird.utils import logger
+from blackbird.plugins.base import BlackbirdPluginError
 
 try:
     # for python-daemon 1.5.x(lockfile 0.8.x)
@@ -57,28 +58,24 @@ class BlackBird(object):
         This method creates job instances.
         """
 
-        creater = JobCreater(self.config, JOBS.jobs, self.queue, self.logger)
-        self.jobs = creater.job_factory()
+        creator = JobCreator(self.config, JOBS.jobs, self.queue, self.logger)
+        self.jobs = creator.job_factory()
 
     def start(self):
         """
         main loop.
         """
 
-        log_file = open(self.config['global']['log_file'], 'a+', 0)
-        self.logger.info('started main process')
-        pid_file = pidlockfile.PIDLockFile(ARGS.pid_file)
-
         def main_loop():
             while True:
                 threadnames = [thread.name for thread in threading.enumerate()]
                 for job_name, concrete_job in self.jobs.items():
-                    print job_name
                     if not job_name in threadnames:
-                        new_thread = Executer(
-                            concrete_job['method'],
-                            job_name,
-                            concrete_job['interval']
+                        new_thread = Executor(
+                            name=job_name,
+                            job=concrete_job['method'],
+                            logger=self.logger,
+                            interval=concrete_job['interval']
                         )
                         new_thread.start()
                         new_thread.join(1)
@@ -86,6 +83,9 @@ class BlackBird(object):
                         thread.join(1)
 
         if not ARGS.debug_mode:
+            log_file = open(self.config['global']['log_file'], 'a+', 0)
+            self.logger.info('started main process')
+            pid_file = pidlockfile.PIDLockFile(ARGS.pid_file)
             with DaemonContext(
                 files_preserve=[
                     self.logger.handlers[0].stream
@@ -99,18 +99,19 @@ class BlackBird(object):
                 main_loop()
 
         else:
+            self.logger.info('started main process')
             main_loop()
 
 
-class JobCreater(object):
+class JobCreator(object):
     """
     JobFactory class.
     This class creates job instance from job class(ConcreteJob).
     """
 
-    def __init__(self, config, jobs, queue, logger):
+    def __init__(self, config, plugins, queue, logger):
         self.config = config
-        self.plugins = jobs
+        self.plugins = plugins
         self.queue = queue
         self.logger = logger
 
@@ -188,20 +189,21 @@ class JobCreater(object):
         return jobs
 
 
-class Executer(threading.Thread):
+class Executor(threading.Thread):
     """
-    job executer class.
+    job executor class.
     "interval" argument is interval of getting data.
 
     If you write "interval" option as following at each section in config file:
         interval = 30
 
-    Executer get the data every 30 seconds.
+    Executor get the data every 30 seconds.
     """
-    def __init__(self, job, name, interval):
+    def __init__(self, name, job, logger, interval):
         threading.Thread.__init__(self, name=name)
         self.setDaemon(True)
         self.job = job
+        self.logger = logger
         if type(interval) is not float:
             self.interval = float(interval)
         else:
@@ -210,7 +212,12 @@ class Executer(threading.Thread):
     def run(self):
         while True:
             time.sleep(self.interval)
-            self.job()
+
+            try:
+                self.job()
+            except BlackbirdPluginError as error:
+                self.logger.error(error)
+                exit(1)
 
 
 def main():

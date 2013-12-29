@@ -41,13 +41,15 @@ class BlackBird(object):
 
     def _set_logger(self):
         if ARGS.debug_mode:
-            logger_obj = logger.logger_factory(sys.stdout,
-                                               'debug'
-                                               )
+            logger_obj = logger.logger_factory(
+                sys.stdout,
+                'debug'
+            )
         else:
-            logger_obj = logger.logger_factory(self.config['global']['log_file'],
-                                               self.config['global']['log_level']
-                                               )
+            logger_obj = logger.logger_factory(
+                self.config['global']['log_file'],
+                self.config['global']['log_level']
+            )
         return logger_obj
 
     def _create_threads(self):
@@ -70,13 +72,14 @@ class BlackBird(object):
         def main_loop():
             while True:
                 threadnames = [thread.name for thread in threading.enumerate()]
-                for job_name, job_obj in self.jobs.items():
+                for job_name, concrete_job in self.jobs.items():
+                    print job_name
                     if not job_name in threadnames:
-                        if 'interval' in job_obj.options:
-                            interval = job_obj.options['interval']
-                        else:
-                            interval = 10
-                        new_thread = Executer(job_obj, job_name, interval)
+                        new_thread = Executer(
+                            concrete_job['method'],
+                            job_name,
+                            concrete_job['interval']
+                        )
                         new_thread.start()
                         new_thread.join(1)
                     else:
@@ -107,15 +110,26 @@ class JobCreater(object):
 
     def __init__(self, config, jobs, queue, logger):
         self.config = config
-        self.jobs = jobs
+        self.plugins = jobs
         self.queue = queue
         self.logger = logger
 
     def job_factory(self):
         """
-        Take list of jobs and queue as arguments.
-        list of jobs is list of "ConcreteJob" classes.
-        Return list of threads.
+        Create concrete jobs. The concrete jobs is following dictionary.
+        jobs = {
+            'PLUGINNAME-build_items': {
+                'method': FUNCTION_OBJECT,
+                'interbal': INTERBAL_TIME ,
+            }
+            ...
+        }
+        If ConcreteJob instance has "build_discovery_items",
+        "build_discovery_items" method is added to jobs.
+
+        warn: looped method is seprecated in 0.4.0.
+        You should implemente "build_items" instead of "looped_method".
+        In most cases you need only to change the method name.
         """
 
         jobs = dict()
@@ -128,9 +142,48 @@ class JobCreater(object):
             #Since validate in utils/configread, does not occur here Error
             #In the other sections are global,
             #that there is a "module" option is collateral.
-            name = options['module']
-            job_kls = self.jobs[name]
-            jobs[section] = job_kls(options, self.queue, self.logger)
+            plugin_name = options['module']
+            job_kls = self.plugins[plugin_name]
+            job_obj = job_kls(options, self.queue, self.logger)
+
+            # Deprecated!!
+            if hasattr(job_obj, 'looped_method'):
+                self.logger.warn(
+                    ('{0}\'s "looped_method" is deprecated.'
+                     'Pleases change method name to "build_items"'
+                     ''.format(plugin_name))
+                )
+                name = '-'.join([plugin_name, 'looped_method'])
+                interval = 10
+                if 'interval' in options:
+                    interval = options['interval']
+
+                jobs[name] = {
+                    'method': job_obj.looped_method,
+                    'interval': interval,
+                }
+
+            if hasattr(job_obj, 'build_items'):
+                name = '-'.join([plugin_name, 'build_itemis'])
+                interval = 10
+                if 'interval' in options:
+                    interval = options['interval']
+
+                jobs[name] = {
+                    'method': job_obj.build_items,
+                    'interval': interval,
+                }
+
+            if hasattr(job_obj, 'build_discovery_items'):
+                name = '-'.join([plugin_name, 'build_discovery_items'])
+                lld_interval = 600
+                if 'lld_interval' in self.config['global']:
+                    lld_interval = self.config['global']['lld_interval']
+
+                jobs[name] = {
+                    'method': job_obj.build_discovery_items,
+                    'interval': lld_interval,
+                }
 
         return jobs
 
@@ -149,12 +202,15 @@ class Executer(threading.Thread):
         threading.Thread.__init__(self, name=name)
         self.setDaemon(True)
         self.job = job
-        self.interval = interval
+        if type(interval) is not float:
+            self.interval = float(interval)
+        else:
+            self.interval = interval
 
     def run(self):
         while True:
             time.sleep(self.interval)
-            self.job.looped_method()
+            self.job()
 
 
 def main():

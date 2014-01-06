@@ -8,7 +8,6 @@ import errno
 import glob
 import grp
 import ipaddr
-import lockfile
 import os
 import pkgutil
 import pwd
@@ -443,8 +442,7 @@ class ConfigReader(base.Subject):
 
     def _create_specs(self):
         """
-        Call ConfigReader._configspec_factory(),
-        and create configspec instances based "conf/defaults.cfg".
+        Create configspec instances based "conf/defaults.cfg".
         This function takes as arguments to the required section and module.
         Take them out from self.config, _create_specs pass the _config_factory.
         """
@@ -459,9 +457,9 @@ class ConfigReader(base.Subject):
             if section == 'global':
                 continue
 
-            try:
+            if 'module' in options:
                 module = options['module']
-            except KeyError:
+            else:
                 raise ConfigMissingValue(section, 'module')
 
             spec.merge(self._configspec_factory(section=section,
@@ -523,7 +521,7 @@ class ConfigReader(base.Subject):
 
         spec = self._create_specs()
         functions = {
-            'ipaddress': is_ipaddress
+            'ipaddress': is_ipaddress,
         }
         validator = validate.Validator(functions=functions)
 
@@ -657,6 +655,7 @@ def extend_is_dir(value, minimum=None, maximum=None):
 
     else:
         return is_dir(value)
+
 
 def is_log(value):
     """

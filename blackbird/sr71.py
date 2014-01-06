@@ -121,14 +121,14 @@ class JobCreator(object):
         jobs = {
             'PLUGINNAME-build_items': {
                 'method': FUNCTION_OBJECT,
-                'interbal': INTERBAL_TIME ,
+                'interval': INTERVAL_TIME ,
             }
             ...
         }
         If ConcreteJob instance has "build_discovery_items",
         "build_discovery_items" method is added to jobs.
 
-        warn: looped method is seprecated in 0.4.0.
+        warn: looped method is deprecated in 0.4.0.
         You should implemente "build_items" instead of "looped_method".
         In most cases you need only to change the method name.
         """

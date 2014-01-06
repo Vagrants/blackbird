@@ -132,9 +132,7 @@ class BlackbirdPluginError(Exception):
 
 
 class ValidatorBase(object):
-    u"""
-    Base class of each "plugins/hoge_module"'s Validator.
-    options in config file validate.
+    """
     e.g: check the validity of the values as follows:
     host -> '127.0.0.1'(IPAddress),
     port -> '11211'(number of 0 - 65535)
@@ -144,22 +142,21 @@ class ValidatorBase(object):
 
     @abc.abstractproperty
     def spec(self):
-        u"""
-        This property is used when validate config file.
-        It's also used when "configspec" object as ConfigObj instance.
-        e.g: ConfigObj(infile=ValidatorBase.spec, _inspec=True)
-
-        Thus, this property must be listed configobj's specfiles rules.
+        """
+        "spec" property is used When "ConfigReader" validates config file.
+        "spec" property must be listed configobj's specfiles rules.
         e.g:
         [redis]
         host = ipaddress(default='127.0.0.1')
         port = port(0, 65535, default=6379)
 
-        And, "configspec" as ConfigObj's argument must be
-        filelike object(like StringIO or TemporaryFile)
+        "configspec" as ConfigObj's argument must be
+        file-like object(like StringIO or TemporaryFile)
         or a list of lines.
 
         Notes: 1. List of lines as COnfigObj's argument
+        Both following format works fine.
+
         spec = (
             "[redis]",
             "host = string(default='127.0.0.1')",
@@ -172,32 +169,35 @@ class ValidatorBase(object):
             "port = integer(0, 6535, default=6379)\n"
         )
 
-        Both forms works fine above.
+        Notes: 2. file-like object
+        You can also use file-like object.
+        Both following format works fine.
 
-        Notes: 2. List of lines
-        when writing to FileType like StringIO object.
         spec = (
             "[redis]\n"
             "host = string(default='127.0.0.1')\n"
             "port = integer(0, 65535, default=6379)\n"
         )
+        io = StringIO.StringIO()
+        io.write(spec)
+        io.flush()
+        io.seek(0)
 
         spec = (
             "[redis]\n",
             "host = string(default='127.0.0.1')\n",
             "port = integer(0, 65535, default=6379)\n"
         )
-        
-        Both forms works fine above.
+        io = StringIO.StringIO()
+        io.write(spec)
+        io.flush()
+        io.seek(0)
         """
 
         raise NotImplementedError('spec')
 
-    def gethostname(self, addr=None):
-        if addr:
-            return socket.gethostbyaddr(addr)
-        else:
-            return socket.gethostname()
+    def detect_hostname(self):
+        return socket.getfqdn() or socket.gethostname() or 'localhost'
 
 class Timer(object):
     """

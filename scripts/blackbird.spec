@@ -93,7 +93,7 @@ service %{name} stop > /dev/null 2>&1 || \
 %config(noreplace) %{_sysconfdir}/logrotate.d/blackbird
 
 %changelog
-* Mon Jan 6 2013 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.3.1-1
+* Mon Jan 6 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.3.1-1
 - Implement ValidatorBase.detect_hostname
 
 * Sun Dec 29 2013 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.3.0-1

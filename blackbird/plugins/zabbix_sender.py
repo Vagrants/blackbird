@@ -42,7 +42,7 @@ class ConcreteJob(base.JobBase):
 
         self.result = None
 
-    def looped_method(self):
+    def build_items(self):
         u"""
         The method is called from "Executer" as following:
         while True:

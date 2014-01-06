@@ -20,7 +20,7 @@ class ConcreteJob(base.JobBase):
 
         self.hostname = options['hostname']
 
-    def looped_method(self):
+    def build_items(self):
         u"""This method called by Executer.
         /proc/net/tcp -> {host:host, key:key, value:value, clock:clock}
         """
@@ -105,6 +105,6 @@ class Validator(base.ValidatorBase):
     def spec(self):
         self.__spec = (
             "[{0}]".format(__name__),
-            "hostname = string(default={0})".format(self.gethostname()),
+            "hostname = string(default={0})".format(self.detect_hostname()),
         )
         return self.__spec

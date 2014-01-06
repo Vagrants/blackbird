@@ -165,7 +165,7 @@ class JobCreator(object):
                 }
 
             if hasattr(job_obj, 'build_items'):
-                name = '-'.join([plugin_name, 'build_itemis'])
+                name = '-'.join([plugin_name, 'build_items'])
                 interval = 10
                 if 'interval' in options:
                     interval = options['interval']

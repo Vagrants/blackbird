@@ -21,12 +21,10 @@ class JobBase(object):
         self.queue = queue
         self.logger = logger
 
-    @abc.abstractmethod
-    def looped_method(self):
-        """Called by "Executer".
-        This method implemented by derived class
-        """
-        raise NotImplementedError
+    # TODO: looped_method to build_items
+    #@abc.abstractmethod
+    #def looped_method(self):
+        #raise NotImplementedError
 
 
 class ItemBase(object):

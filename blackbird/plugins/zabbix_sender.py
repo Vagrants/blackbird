@@ -157,7 +157,7 @@ class Validator(base.ValidatorBase):
             "Server = string()",
             "port = integer(0, 65535, default=10051)",
             "timeout = integer(default=4)",
-            "hostname = string(default={0})".format(self.gethostname()),
+            "hostname = string(default={0})".format(self.detect_hostname()),
         )
         return self.__spec
 

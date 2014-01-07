@@ -4,7 +4,7 @@
 try:
     from setuptools import setup
 except ImportError:
-    from distutils import setup
+    from distutils.core import setup
 
 setup(
     name='blackbird',
@@ -20,5 +20,16 @@ setup(
     ],
     entry_points={
         'console_scripts': ['blackbird = blackbird.sr71:main']
-    }
+    },
+    install_requires=[
+        "argparse",
+        "configobj",
+        "ipaddr",
+        "lockfile",
+        "logilab-astng",
+        "logilab-common",
+        "nose",
+        "python-daemon",
+        "unittest2",
+    ],
 )

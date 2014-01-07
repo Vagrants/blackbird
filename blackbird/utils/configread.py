@@ -14,8 +14,6 @@ import pwd
 import sys
 import validate
 
-from distutils.sysconfig import get_python_lib
-
 from blackbird.utils import base as base
 from blackbird.utils import helpers
 from blackbird.utils import argumentparse
@@ -226,8 +224,8 @@ class ConfigReader(base.Subject):
 
         if not os.path.exists('./plugins'):
             default_module_dir1 = os.path.join(
-                get_python_lib(),
-                'blackbird',
+                os.path.dirname(__file__),
+                os.pardir,
                 'plugins',
             )
         module_dirs = [default_module_dir1, default_module_dir2]

@@ -144,7 +144,7 @@ class Validator(base.ValidatorBase):
     def spec(self):
         self.__spec = (
             "[{0}]".format(__name__),
-            "Server = string()",
+            "server = string()",
             "port = integer(0, 65535, default=10051)",
             "timeout = integer(default=4)",
             "hostname = string(default={0})".format(self.detect_hostname()),

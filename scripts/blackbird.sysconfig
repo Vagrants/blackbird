@@ -1,2 +1,11 @@
-#pid file location of blackbird
+# execute
+BLACKBIRD_EXEC=/usr/bin/blackbird
+
+# config file location
+BLACKBIRD_CONFIG=/etc/blackbird/defaults.cfg
+
+# pid file location
 BLACKBIRD_PID_FILE=/var/run/blackbird/blackbird.pid
+
+# lock file location
+BLACKBIRD_LOCK_FILE=/var/lock/subsys/blackbird

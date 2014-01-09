@@ -155,7 +155,7 @@ class JobCreator(object):
                      ''.format(plugin_name))
                 )
                 name = '-'.join([plugin_name, 'looped_method'])
-                interval = 10
+                interval = 60
                 if 'interval' in options:
                     interval = options['interval']
 

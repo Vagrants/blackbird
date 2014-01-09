@@ -1,23 +1,44 @@
-#!/bin/sh
+#!/bin/bash
+#
+# blackbird    Zabbix sender daemon
 #
 # chkconfig:   - 99 01
 # description: This scripts turns blackbird on/off
 # processname: blackbird
 # config:      /etc/blackbird/defaults.cfg
+# config:      /etc/sysconfig/blackbird
+# pidfile:     /var/run/blackbird/blackbird.pid
 #
+### BEGIN INIT INFO
+# Provides: blackbird
+# Required-Start: $local_fs $remote_fs $network $named
+# Required-Stop: $local_fs $remote_fs $network
+# Should-Start: distcache
+# Short-Description: start and stop blackbird daemon
+# Description: BlackBird get various middleware of information,
+#  send to Zabbix
+### END INIT INFO
 
+# Source function library.
 . /etc/rc.d/init.d/functions
-. /etc/sysconfig/blackbird
+
+if [ -f /etc/sysconfig/blackbird ]; then
+        . /etc/sysconfig/blackbird
+fi
 
 RETVAL=0
+BLACKBIRD_EXEC=${BLACKBIRD_EXEC-/usr/bin/blackbird}
+BLACKBIRD_CONFIG=${BLACKBIRD_CONFIG-/etc/blackbird/defaults.cfg}
+BLACKBIRD_PID_FILE=${BLACKBIRD_PID_FILE-/var/run/blackbird/blackbird.pid}
+BLACKBIRD_LOCK_FILE=${BLACKBIRD_LOCK_FILE-/var/lock/subsys/blackbird}
 
 start() {
     echo -n $"Stating blackbird: "
-    /usr/bin/blackbird -c /etc/blackbird/defaults.cfg -p "$BLACKBIRD_PID_FILE"
+    $BLACKBIRD_EXEC -c $BLACKBIRD_CONFIG -p "$BLACKBIRD_PID_FILE"
     RETVAL=$?
     if [ $RETVAL -eq 0 ] ; then
         success
-        touch /var/lock/subsys/blackbird
+        touch $BLACKBIRD_LOCK_FILE
     else
         failure
     fi
@@ -30,7 +51,7 @@ stop() {
     RETVAL=$?
     if [ $RETVAL -eq 0 ] ; then
         success
-        rm -f /var/lock/subsys/blackbird
+        rm -f $BLACKBIRD_LOCK_FILE
     else
         failure
     fi
@@ -49,11 +70,20 @@ case "$1" in
   stop)
     stop
     ;;
+  status)
+    status -p $BLACKBIRD_PID_FILE $BLACKBIRD_EXEC
+    RETVAL=$?
+    ;;
+  condrestart|try-restart)
+    if status -p $BLACKBIRD_PID_FILE $BLACKBIRD_EXEC >&/dev/null; then
+        restart
+    fi
+    ;;
   restart)
     restart
     ;;
   *)
-    echo $"Usage: $0 {start|stop|restart}"
+    echo $"Usage: $0 {start|stop|restart|status|condrestart|try-restart}"
     exit 1
 esac
 

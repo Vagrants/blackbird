@@ -5,16 +5,6 @@ u"""zabbix_sender utility.
 
 This module implements zabbix_sender command line utility in pure python.
 
-Example:
-
->>> import utils.ZabbixSender
->>> zabbix_sender = utils.ZabbixSender.ZabbixSender('127.0.0.1')
->>> zabbix_sender.set_hostname('test_host')
->>> zabbix_sender.add('test_key1', 'test_value1')
->>> zabbix_sender.add('test_key2', 'test_value2')
->>> zabbix_sender.send()
-    >>> print(zabbix_sender.get_result())
-{u'info': u'Processed 2 Failed 0 Total 2 Seconds spent 0.000111', u'response': u'success'}
 """
 
 import json
@@ -29,7 +19,7 @@ class ConcreteJob(base.JobBase):
         super(ConcreteJob, self).__init__(options, queue, logger)
 
         self.server_address = None
-        self.set_server_address(options['Server'])
+        self.set_server_address(options['server'])
         self.server_port = None
         self.set_server_port(options['port'])
 

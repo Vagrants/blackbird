@@ -3,6 +3,7 @@
 """main process."""
 
 import Queue
+import os
 import sys
 import threading
 import time
@@ -84,6 +85,19 @@ class BlackBird(object):
 
         if not ARGS.debug_mode:
             log_file = open(self.config['global']['log_file'], 'a+', 0)
+            log_file_stat = os.lstat(self.config['global']['log_file'])
+
+            if log_file_stat.st_uid != self.config['global']['user']:
+                os.chown(self.config['global']['log_file'],
+                         self.config['global']['user'],
+                         -1
+                         )
+            if log_file_stat.st_gid != self.config['global']['group']:
+                os.chown(self.config['global']['log_file'],
+                         -1,
+                         self.config['global']['group']
+                         )
+
             self.logger.info('started main process')
             pid_file = pidlockfile.PIDLockFile(ARGS.pid_file)
             with DaemonContext(

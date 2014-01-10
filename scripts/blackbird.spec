@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 %define name blackbird
-%define version 0.3.3
+%define version 0.3.4
 %define unmangled_version %{version}
 %define release 1%{dist}
 %define blackbird_user bbd
@@ -93,6 +93,9 @@ service %{name} stop > /dev/null 2>&1 || \
 %config(noreplace) %{_sysconfdir}/logrotate.d/blackbird
 
 %changelog
+* Fri Jan 10 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.3.4-1
+- If blackbird is daemon mode, change log file owner and group
+
 * Fri Jan 10 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.3.3-1
 - Merge makocchi pull request
 - add "status"|"condrestart"|"try-restart" to init script

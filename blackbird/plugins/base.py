@@ -5,6 +5,7 @@
 
 import abc
 import datetime
+import inspect
 import json
 import math
 import socket
@@ -20,6 +21,14 @@ class JobBase(object):
         self.options = options
         self.queue = queue
         self.logger = logger
+
+        self.check_main_loop_method()
+
+    def check_main_loop_method(self):
+        members = inspect.getmembers(self)
+        members = [entry[0] for entry in members]
+        if 'looped_method' in members or 'build_items':
+            raise NotImplementedError
 
     # TODO: looped_method to build_items
     #@abc.abstractmethod

@@ -263,22 +263,13 @@ class ConfigReader(base.Subject):
         When validation, 'is_egg' function is called for ham option.
         """
 
-        if ARGS.ignore_plugindir:
-            raw_spec = (
-                "[global]",
-                "user = user(default=bbd)",
-                "group = group(default=bbd)",
-                "log_file = log(default=/var/log/blackbird/blackbird.log)",
-                "log_level = log_level(default='warn')"
-            )
-        else:
-            raw_spec = (
-                "[global]",
-                "user = user(default=bbd)",
-                "group = group(default=bbd)",
-                "log_file = log(default=/var/log/blackbird/blackbird.log)",
-                "log_level = log_level(default='warn')"
-            )
+        raw_spec = (
+            "[global]",
+            "user = user(default=bbd)",
+            "group = group(default=bbd)",
+            "log_file = log(default=/var/log/blackbird/blackbird.log)",
+            "log_level = log_level(default='warn')"
+        )
 
         functions = {
             'user': is_user,
@@ -300,19 +291,12 @@ class ConfigReader(base.Subject):
         global_dict = {}
 
         #conbination of key at global section and validate function.
-        if ARGS.ignore_plugindir:
-            key_and_func = (
-                ('user', is_user),
-                ('group', is_group),
-                ('log_file', is_log)
-            )
-        else:
-            key_and_func = (
-                ('user', is_user),
-                ('group', is_group),
-                ('module_dir', extend_is_dir),
-                ('log_file', is_log)
-            )
+        key_and_func = (
+            ('user', is_user),
+            ('group', is_group),
+            ('module_dir', extend_is_dir),
+            ('log_file', is_log)
+        )
 
         for key, func in key_and_func:
             if key in self.config['global'].keys():

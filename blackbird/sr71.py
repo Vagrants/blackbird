@@ -158,6 +158,7 @@ class JobCreator(object):
             #In the other sections are global,
             #that there is a "module" option is collateral.
             plugin_name = options['module']
+            options['arguments'] = vars(ARGS)
             job_kls = self.plugins[plugin_name]
             job_obj = job_kls(options, self.queue, self.logger)
 

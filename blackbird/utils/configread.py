@@ -228,11 +228,11 @@ class ConfigReader(base.Subject):
                 os.pardir,
                 'plugins',
             )
-        module_dirs = [default_module_dir1, default_module_dir2]
 
         if 'module_dir' in self.config['global']:
-            module_dirs.append(self.config['global']['module_dir'])
+            default_module_dir2 = self.config['global']['module_dir']
 
+        module_dirs = [default_module_dir1, default_module_dir2]
         option = {'module_dir': module_dirs}
         return option
 

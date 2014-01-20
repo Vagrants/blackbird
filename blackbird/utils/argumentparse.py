@@ -36,12 +36,6 @@ def get_args():
                         dest='pid_file'
                         )
 
-    parser.add_argument('--ignore-plugindir', '-P',
-                        action='store_true',
-                        dest='ignore_plugindir',
-                        help='Don\'t check to exists plugin dir.'
-                        )
-
     args = parser.parse_args()
     args.pid_file = is_pid(args.pid_file)
 

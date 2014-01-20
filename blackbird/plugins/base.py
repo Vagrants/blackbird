@@ -5,11 +5,12 @@
 
 import abc
 import datetime
-import inspect
 import json
 import math
 import socket
 import time
+
+from Queue import Full
 
 
 class JobBase(object):
@@ -21,11 +22,47 @@ class JobBase(object):
         self.options = options
         self.queue = queue
         self.logger = logger
+        self.invalid_key_list = None
 
     # TODO: looped_method to build_items
     #@abc.abstractmethod
     #def looped_method(self):
         #raise NotImplementedError
+
+    def enqueue(self, item):
+        """
+        Enqueue items.
+        If you define "self.filter" (sequence),
+        this method put the item to queue after filtering.
+        "self.filter" operates as blacklist.
+
+        This method expects that
+        "item" argument has dict type "data" attribute.
+        """
+        is_enqueue_item = True
+
+        if self.invalid_key_list is not None:
+            for entry in self.invalid_key_list:
+                if entry in item.data['key']:
+                    is_enqueue_item = False
+                    message = (
+                        '{key} is filtered by "invalid_key_list".'
+                        ''.format(key=item.data['key'],
+                                  plugin=__name__)
+                    )
+                    self.logger.debug(message)
+                    break
+
+        if is_enqueue_item:
+            try:
+                self.queue.put(item, block=False)
+                return True
+            except Full:
+                self.logger.error('Blackbird item Queue is Full!!!')
+                return False
+
+        else:
+            return False
 
 
 class ItemBase(object):

@@ -21,28 +21,31 @@ except ImportError:
     from lockfile import pidlockfile as pidlockfile
 
 
-ARGS = argumentparse.get_args()
-JOBS = configread.JobObserver()
-CONFIG = configread.ConfigReader(ARGS.config, JOBS).config
-
-
 class BlackBird(object):
     """
     BlackBird is main process.
-    'utils/configread' module parses and read config file,
+    'blackbird/utils/configread.py' module
+    parses and read config file,
     collects job that is written in config file.
     """
 
     def __init__(self):
-        self.config = CONFIG
+        self.args = argumentparse.get_args()
         self.logger = self._set_logger()
+
+        self.observers = configread.JobObserver()
+        self.config = configread.ConfigReader(
+            self.args.config, self.observers, self.logger
+        ).config
+
         self.queue = Queue.Queue()
         self.jobs = None
 
+        self._add_arguments(self.args)
         self._create_threads()
 
     def _set_logger(self):
-        if ARGS.debug_mode:
+        if self.args.debug_mode:
             logger_obj = logger.logger_factory(
                 sys.stdout,
                 'debug'
@@ -54,12 +57,42 @@ class BlackBird(object):
             )
         return logger_obj
 
+    def _add_arguments(self, args):
+        """
+        Add command line arguments to each section in config.
+        e.x:
+        before:
+            [global]
+            hoge = hoge
+
+        after:
+            {
+                'global': {
+                    'hoge': 'hoge',
+                    'arguments': {
+                        'debug_mode': True,
+                        'and_more': AND_MORE
+                    }
+                }
+            }
+        """
+        update_dict = {
+            'arguments': vars(args)
+        }
+        for section in self.config.keys():
+            self.config[section].update(update_dict)
+
     def _create_threads(self):
         """
         This method creates job instances.
         """
 
-        creator = JobCreator(self.config, JOBS.jobs, self.queue, self.logger)
+        creator = JobCreator(
+            self.config,
+            self.observers.jobs,
+            self.queue,
+            self.logger
+        )
         self.jobs = creator.job_factory()
 
     def start(self):
@@ -83,7 +116,7 @@ class BlackBird(object):
                     else:
                         thread.join(1)
 
-        if not ARGS.debug_mode:
+        if not self.args.debug_mode:
             log_file = open(self.config['global']['log_file'], 'a+', 0)
             log_file_stat = os.lstat(self.config['global']['log_file'])
 
@@ -99,7 +132,7 @@ class BlackBird(object):
                          )
 
             self.logger.info('started main process')
-            pid_file = pidlockfile.PIDLockFile(ARGS.pid_file)
+            pid_file = pidlockfile.PIDLockFile(self.args.pid_file)
             with DaemonContext(
                 files_preserve=[
                     self.logger.handlers[0].stream
@@ -158,7 +191,6 @@ class JobCreator(object):
             #In the other sections are global,
             #that there is a "module" option is collateral.
             plugin_name = options['module']
-            options['arguments'] = vars(ARGS)
             job_kls = self.plugins[plugin_name]
             job_obj = job_kls(options, self.queue, self.logger)
 

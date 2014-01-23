@@ -18,8 +18,6 @@ from blackbird.utils import base as base
 from blackbird.utils import helpers
 from blackbird.utils import argumentparse
 
-ARGS = argumentparse.get_args()
-
 
 class JobObserver(base.Observer):
     """
@@ -50,18 +48,19 @@ class ConfigReader(base.Subject):
     """
     ConfigObj isn't written that expect to you(and I) override.
     So, ConfigReader generate ConfigObj instance at internal.
-    ConfigReader call Original funcation to ConfigObj instance.
+    ConfigReader call Original function to ConfigObj instance.
     For example, _override_section(self).
     Return ConfigObj instance after called several function.
     """
 
-    def __init__(self, infile, observers=None):
+    def __init__(self, infile, observers=None, logger=None):
+        self.logger = logger
         self.config = self._configobj_factory(infile)
 
         #validate config file
         self._read_include()
         self.config['global'].update(self._set_default_module_dir())
-        self.config['global'].update(self._global_validate())
+        self._global_validate()
         self._validate()
 
         #notify observers
@@ -268,7 +267,9 @@ class ConfigReader(base.Subject):
             "user = user(default=bbd)",
             "group = group(default=bbd)",
             "log_file = log(default=/var/log/blackbird/blackbird.log)",
-            "log_level = log_level(default='warn')"
+            "log_level = log_level(default='warn')",
+            "lld_interval = integer(default=600)",
+            "interval = integer(default=10)"
         )
 
         functions = {
@@ -284,29 +285,10 @@ class ConfigReader(base.Subject):
                                        _inspec=True
                                        )
         self.config.configspec = spec
-        self.config.validate(validator, preserve_errors=True)
+        result = self.config.validate(validator, preserve_errors=True)
+        self._parse_result(result)
 
-        #ConfigObj.validate doesn't overwrite value.
-        #So, part of the value of the override did myself...
-        global_dict = {}
-
-        #conbination of key at global section and validate function.
-        key_and_func = (
-            ('user', is_user),
-            ('group', is_group),
-            ('module_dir', extend_is_dir),
-            ('log_file', is_log)
-        )
-
-        for key, func in key_and_func:
-            if key in self.config['global'].keys():
-                global_dict[key] = func(self.config['global'][key])
-
-        #reset to self.config['global'].configspec
-        #each sections have configspec
         self.config['global'].configspec.clear()
-
-        return global_dict
 
     def _get_modules(self):
         """
@@ -515,19 +497,26 @@ class ConfigReader(base.Subject):
 
     def _parse_result(self, result):
         u"""
-        This method parse result of self._validate().
+        This method parses validation results.
         If result is True, then do nothing.
         if include even one false to result,
         this method parse result and raise Exception.
         """
 
-        parsed_result = configobj.flatten_errors(self.config, result)
-        if parsed_result:
-            for error in parsed_result:
-                #logging
-                print error
+        if result is not True:
+            for section, errors in result.iteritems():
+                for key, value in errors.iteritems():
+                    if value is not True:
+                        message = (
+                            '"{0}" option in [{1}] is invalid value. {2}'
+                            ''.format(key, section, value)
+                        )
+                        self.logger.error(message)
 
-            raise validate.ValidateError
+            err_message = (
+                'Some options are invalid!!! Please see the log!!!'
+            )
+            raise validate.ValidateError(err_message)
 
         else:
             return True
@@ -749,7 +738,7 @@ def is_log_level(value):
         raise validate.VdtValueError(err_message)
 
 
-def is_user(value):
+def is_user(value, min=None, max=None):
     """
     Check whether username or uid as argument exists.
     if this function recieved username, convert uid and exec validation.

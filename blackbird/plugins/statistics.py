@@ -7,6 +7,7 @@ This plugin get the items queue for "stats" and
 put the items queue for "item".
 """
 
+import blackbird
 from blackbird.plugins import base
 
 class ConcreteJob(base.JobBase):
@@ -15,7 +16,7 @@ class ConcreteJob(base.JobBase):
 
         self.stats = {
             'blackbird.ping': 1,
-            'blackbird.version': '0.3.6',
+            'blackbird.version': blackbird.__version__,
             'blackbird.queue.length': None,
             'blackbird.zabbix_sender.processed': 0,
             'blackbird.zabbix_sender.failed': 0,

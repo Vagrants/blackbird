@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 %define name blackbird
-%define version 0.3.5
+%define version 0.3.6
 %define unmangled_version %{version}
 %define release 1%{dist}
 %define blackbird_user bbd
@@ -93,6 +93,11 @@ service %{name} stop > /dev/null 2>&1 || \
 %config(noreplace) %{_sysconfdir}/logrotate.d/blackbird
 
 %changelog
+* Mon Jan 24 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.3.6-1
+- Blackbird statistics.
+- Set default queue length.
+- Set global interval.
+
 * Mon Jan 20 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.3.5-1
 - Implement item key fileter to plugins.base. This filter is blacklist.
 

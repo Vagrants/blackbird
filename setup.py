@@ -6,9 +6,11 @@ try:
 except ImportError:
     from distutils.core import setup
 
+import blackbird
+
 setup(
     name='blackbird',
-    version='0.3.5',
+    version=blackbird.__version__,
     description='Daemon monitoring each middleware by using ZABBIX-SENDER',
     author='ARASHI, Jumpei',
     author_email='jumpei.arashi@arashike.com',

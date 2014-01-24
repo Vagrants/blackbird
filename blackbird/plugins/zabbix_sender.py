@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-u"""zabbix_sender utility.
-
-This module implements zabbix_sender command line utility in pure python.
-
+"""
+Zabbix sender plugin.
+This plugin get the item from Queue and send the item to zabbix-server.
+Beforehand, you need to map each key with Zabbix template.
 """
 
 import json
@@ -15,7 +15,7 @@ from blackbird.plugins import base
 
 
 class ConcreteJob(base.JobBase):
-    def __init__(self, options, queue=None, logger=None):
+    def __init__(self, options, queue=None, stats_queue=None, logger=None):
         super(ConcreteJob, self).__init__(options, queue, logger)
 
         self.server_address = None
@@ -26,20 +26,17 @@ class ConcreteJob(base.JobBase):
         self.body = dict()
         self.body['request'] = 'sender data'
         self.body['data'] = list()
+        self.result = None
 
         # Pool for when it fails to send.
         self.pool = list()
 
-        self.result = None
+        # For blackbird's statistics
+        self.stats_queue = stats_queue
 
     def build_items(self):
-        u"""
-        The method is called from "Executer" as following:
-        while True:
-            self.job.looped_method()
-
-        self.pool is place where save temporary items in the queue
-        when some error occur.
+        """
+        main loop
         """
 
         conn = self.connect(address=self.server_address, port=self.server_port)
@@ -53,7 +50,6 @@ class ConcreteJob(base.JobBase):
                     self.body['data'].extend(item.data)
                 else:
                     self.body['data'].append(item.data)
-            # debug
             self.logger.debug(self.body['data'])
 
             try:
@@ -66,11 +62,15 @@ class ConcreteJob(base.JobBase):
                     self.logger.debug(self.get_result())
             except:
                 self._reverse_queue()
-                self.logger.debug(
-                    ('An error occured. Maybe socket error, or get invalid value.')
+                log_message = (
+                    'An error occurred.'
+                    'Maybe socket error, or get invalid value.'
                 )
+                self.logger.debug(log_message)
             else:
                 del self.body['data'][:]
+
+        self.build_statistics_item()
 
 
     def connect(self, address, port):
@@ -116,6 +116,74 @@ class ConcreteJob(base.JobBase):
             item = self.pool.pop()
             self.queue.put(item, block=False)
 
+    def build_statistics_item(self):
+        """
+        Statistics items are as following:
+        * zabbix_sender result
+            + processed, failed, total and more...
+        """
+        if self.result is not None:
+            stats = dict()
+            result = self.get_result()
+            info = result['info']
+            info = info.split(';')
+            info = [entry.split(':') for entry in info]
+
+            prefix = 'blackbird.zabbix_sender'
+
+            for entry in info:
+                key = entry[0].strip()
+                print key
+                value = None
+
+                if key == 'processed':
+                    value = int(entry[1])
+                elif key == 'failed':
+                    value = int(entry[1])
+                elif key == 'total':
+                    value = int(entry[1])
+                elif key == 'seconds spent':
+                    key = key.replace(' ', '_')
+                    value = float(entry[1])
+                    value = str(round(value, 6))
+                else:
+                    log_message = (
+                        'Blackbird has never seen {key}. {key} is new key??'
+                        ''.format(key=key)
+                    )
+                    self.logger.info(log_message)
+
+                if value is not None:
+                    key = '.'.join([prefix, key])
+                    stats[key] = value
+
+            if 'response' in result:
+                key = '.'.join([prefix, 'response'])
+                stats[key] = result['response']
+
+            for key, value in stats.iteritems():
+                stats_key_list = [
+                    'blackbird.zabbix_sender.processed',
+                    'blackbird.zabbix_sender.failed',
+                    'blackbird.zabbix_sender.total',
+                ]
+                item = BlackbirdStatisticsItem(
+                    key=key,
+                    value=value,
+                    host=self.options['hostname']
+                )
+                if key in stats_key_list:
+                    if self.enqueue(item=item, queue=self.stats_queue):
+                        self.logger.debug(
+                            'Inserted {0} to the statistics queue'
+                            ''.format(item.data)
+                        )
+                else:
+                    if self.enqueue(item=item, queue=self.queue):
+                        self.logger.debug(
+                            'Inserted {0} to the queue'.format(item.data)
+                        )
+
     def set_server_port(self, port):
         """
         Set self.server_port.
@@ -130,6 +198,27 @@ class ConcreteJob(base.JobBase):
 
         self.server_address = socket.gethostbyname(address)
 
+
+class BlackbirdStatisticsItem(base.ItemBase):
+
+    def __init__(self, key, value, host):
+        super(BlackbirdStatisticsItem, self).__init__(key, value, host)
+
+        self.__data = dict()
+        self._generate()
+
+    @property
+    def data(self):
+
+        return self.__data
+
+    def _generate(self):
+        self.__data['host'] = self.host
+        self.__data['clock'] = self.clock
+        self.__data['key'] = self.key
+        self.__data['value'] = self.value
+
+
 class Validator(base.ValidatorBase):
     u"""
     This class store information
@@ -138,7 +227,6 @@ class Validator(base.ValidatorBase):
 
     def __init__(self):
         self.__spec = None
-        self.__module = None
 
     @property
     def spec(self):

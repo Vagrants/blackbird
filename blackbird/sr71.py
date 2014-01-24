@@ -3,6 +3,7 @@
 """main process."""
 
 import Queue
+import inspect
 import os
 import sys
 import threading
@@ -38,7 +39,6 @@ class BlackBird(object):
             self.args.config, self.observers, self.logger
         ).config
 
-        self.queue = Queue.Queue()
         self.jobs = None
 
         self._add_arguments(self.args)
@@ -90,7 +90,6 @@ class BlackBird(object):
         creator = JobCreator(
             self.config,
             self.observers.jobs,
-            self.queue,
             self.logger
         )
         self.jobs = creator.job_factory()
@@ -156,10 +155,15 @@ class JobCreator(object):
     This class creates job instance from job class(ConcreteJob).
     """
 
-    def __init__(self, config, plugins, queue, logger):
+    def __init__(self, config, plugins, logger):
         self.config = config
         self.plugins = plugins
-        self.queue = queue
+        self.queue = Queue.Queue(
+            config['global']['max_queue_length']
+        )
+        self.stats_queue = Queue.Queue(
+            config['global']['max_queue_length']
+        )
         self.logger = logger
 
     def job_factory(self):
@@ -192,7 +196,24 @@ class JobCreator(object):
             #that there is a "module" option is collateral.
             plugin_name = options['module']
             job_kls = self.plugins[plugin_name]
-            job_obj = job_kls(options, self.queue, self.logger)
+
+            if hasattr(job_kls, '__init__'):
+                job_argspec = inspect.getargspec(job_kls.__init__)
+
+                if 'stats_queue' in job_argspec.args:
+                    job_obj = job_kls(
+                        options=options,
+                        queue=self.queue,
+                        stats_queue=self.stats_queue,
+                        logger=self.logger
+                    )
+
+                else:
+                    job_obj = job_kls(
+                        options=options,
+                        queue=self.queue,
+                        logger=self.logger
+                    )
 
             # Deprecated!!
             if hasattr(job_obj, 'looped_method'):
@@ -205,6 +226,8 @@ class JobCreator(object):
                 interval = 60
                 if 'interval' in options:
                     interval = options['interval']
+                elif 'interval' in self.config['global']:
+                    interval = self.config['global']['interval']
 
                 jobs[name] = {
                     'method': job_obj.looped_method,
@@ -216,6 +239,8 @@ class JobCreator(object):
                 interval = 60
                 if 'interval' in options:
                     interval = options['interval']
+                elif 'interval' in self.config['global']:
+                    interval = self.config['global']['interval']
 
                 jobs[name] = {
                     'method': job_obj.build_items,
@@ -225,7 +250,9 @@ class JobCreator(object):
             if hasattr(job_obj, 'build_discovery_items'):
                 name = '-'.join([plugin_name, 'build_discovery_items'])
                 lld_interval = 600
-                if 'lld_interval' in self.config['global']:
+                if 'lld_interval' in options:
+                    lld_interval = options['lld_interval']
+                elif 'lld_interval' in self.config['global']:
                     lld_interval = self.config['global']['lld_interval']
 
                 jobs[name] = {

@@ -145,6 +145,7 @@ class ConcreteJob(base.JobBase):
                 elif key == 'seconds spent':
                     key = key.replace(' ', '_')
                     value = float(entry[1])
+                    value *= 1000
                     value = str(round(value, 6))
                 else:
                     log_message = (

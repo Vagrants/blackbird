@@ -289,7 +289,7 @@ class ConfigReader(base.Subject):
         result = self.config.validate(validator, preserve_errors=True)
         self._parse_result(result)
 
-        self.config['global'].configspec.clear()
+        self.config['global'].configspec = None
 
     def _get_modules(self):
         """
@@ -470,7 +470,7 @@ class ConfigReader(base.Subject):
         """
 
         configspec = self._configobj_factory(infile=infile,
-                                             file_error=False,
+                                             #file_error=False,
                                              _inspec=True
                                              )
 
@@ -503,7 +503,6 @@ class ConfigReader(base.Subject):
         if include even one false to result,
         this method parse result and raise Exception.
         """
-
         if result is not True:
             for section, errors in result.iteritems():
                 for key, value in errors.iteritems():

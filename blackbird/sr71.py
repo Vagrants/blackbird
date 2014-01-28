@@ -32,12 +32,12 @@ class BlackBird(object):
 
     def __init__(self):
         self.args = argumentparse.get_args()
-        self.logger = self._set_logger()
 
         self.observers = configread.JobObserver()
         self.config = configread.ConfigReader(
-            self.args.config, self.observers, self.logger
+            self.args.config, self.observers
         ).config
+        self.logger = self._set_logger()
 
         self.jobs = None
 

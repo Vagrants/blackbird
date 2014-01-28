@@ -53,8 +53,7 @@ class ConfigReader(base.Subject):
     Return ConfigObj instance after called several function.
     """
 
-    def __init__(self, infile, observers=None, logger=None):
-        self.logger = logger
+    def __init__(self, infile, observers=None):
         self.config = self._configobj_factory(infile)
 
         #validate config file
@@ -511,7 +510,7 @@ class ConfigReader(base.Subject):
                             '"{0}" option in [{1}] is invalid value. {2}'
                             ''.format(key, section, value)
                         )
-                        self.logger.error(message)
+                        print(message)
 
             err_message = (
                 'Some options are invalid!!! Please see the log!!!'

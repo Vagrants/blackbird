@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 %define name blackbird
-%define version 0.3.6
+%define version 0.4.0
 %define unmangled_version %{version}
 %define release 1%{dist}
 %define blackbird_user bbd
@@ -93,6 +93,9 @@ service %{name} stop > /dev/null 2>&1 || \
 %config(noreplace) %{_sysconfdir}/logrotate.d/blackbird
 
 %changelog
+* Mon Jan 24 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.4.0-1
+- Resolve sr71 bootstrap problem(self.config, self.logger)
+
 * Mon Jan 24 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.3.6-1
 - Blackbird statistics.
 - Set default queue length.

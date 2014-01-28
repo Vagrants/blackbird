@@ -3,7 +3,7 @@
 %define name blackbird
 %define version 0.4.0
 %define unmangled_version %{version}
-%define release 1%{dist}
+%define release 2%{dist}
 %define blackbird_user bbd
 %define blackbird_uid 187
 %define blackbird_group bbd
@@ -56,6 +56,8 @@ install -dm 0755 $RPM_BUILD_ROOT%{plugins}
 install -p -m 0755 scripts/blackbird.init $RPM_BUILD_ROOT%{_sysconfdir}/init.d/blackbird
 install -p -m 0755 scripts/blackbird.bin $RPM_BUILD_ROOT%{_bindir}/blackbird
 install -p -m 0644 scripts/blackbird.cfg $RPM_BUILD_ROOT%{_sysconfdir}/blackbird/defaults.cfg
+install -p -m 0644 scripts/blackbird-statistics.cfg $RPM_BUILD_ROOT%{_sysconfdir}/blackbird/conf.d/statistics.cfg
+install -p -m 0644 scripts/blackbird-zabbix_sender.cfg $RPM_BUILD_ROOT%{_sysconfdir}/blackbird/conf.d/zabbix_sender.cfg
 install -p -m 0644 scripts/blackbird.logrotate $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.d/blackbird
 install -p -m 0644 scripts/blackbird.sysconfig $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/blackbird
 
@@ -83,8 +85,8 @@ service %{name} stop > /dev/null 2>&1 || \
 %dir %{include_cfg_dir}
 %dir /opt/blackbird
 %defattr(-,root,root)
-%config(noreplace) %{_sysconfdir}/blackbird/*.cfg
 %config(noreplace) %{_sysconfdir}/blackbird/defaults.cfg
+%config(noreplace, missingok) %{include_cfg_dir}/*.cfg
 %config(noreplace) %{_sysconfdir}/sysconfig/blackbird
 %dir %{_sysconfdir}/blackbird
 %{python_sitelib}/*
@@ -93,6 +95,9 @@ service %{name} stop > /dev/null 2>&1 || \
 %config(noreplace) %{_sysconfdir}/logrotate.d/blackbird
 
 %changelog
+* Mon Jan 24 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.4.0-2
+- separate submodule config file
+
 * Mon Jan 24 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.4.0-1
 - Resolve sr71 bootstrap problem(self.config, self.logger)
 

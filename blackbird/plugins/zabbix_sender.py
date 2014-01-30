@@ -133,7 +133,6 @@ class ConcreteJob(base.JobBase):
 
             for entry in info:
                 key = entry[0].strip()
-                print key
                 value = None
 
                 if key == 'processed':

@@ -3,7 +3,7 @@
 %define name blackbird
 %define version 0.4.0
 %define unmangled_version %{version}
-%define release 2%{dist}
+%define release 3%{dist}
 %define blackbird_user bbd
 %define blackbird_uid 187
 %define blackbird_group bbd
@@ -95,6 +95,9 @@ service %{name} stop > /dev/null 2>&1 || \
 %config(noreplace) %{_sysconfdir}/logrotate.d/blackbird
 
 %changelog
+* Thu Jan 30 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.4.0-3
+- Delete print debug.
+
 * Mon Jan 24 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.4.0-2
 - separate submodule config file
 

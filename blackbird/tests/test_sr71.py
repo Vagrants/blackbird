@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- encodig: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 u"""
 Tset sr71.py

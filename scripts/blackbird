@@ -1,7 +1,0 @@
-#!/usr/bin/env python
-# -*- encodig: utf-8 -*-
-
-from blackbird.sr71 import main
-
-if __name__ == '__main__':
-    main()

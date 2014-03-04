@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- encodig: utf-8 -*-
+# -*- coding: utf-8 -*-
 u"""Base class used under the utils directory."""
 
 import abc

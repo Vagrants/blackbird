@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding:utf-8 -*-
 u"""UnitTest: extended_import() in utils/helpers.py"""
 

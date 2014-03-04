@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- encodig: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import errno
 import os

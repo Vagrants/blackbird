@@ -1,4 +1,4 @@
-#!/usr/bin/env python # -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Read config file(default: conf/defaults.cfg)
 Default config file name is hard-corded.

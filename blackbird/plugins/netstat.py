@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 u"""Parse /proc/net/"protocol" and put Queue"""
 

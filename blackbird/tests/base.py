@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- encodig: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 These classes are used by other tests.
 """

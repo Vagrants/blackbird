@@ -30,10 +30,16 @@ RETVAL=0
 BLACKBIRD_EXEC=${BLACKBIRD_EXEC-/usr/bin/blackbird}
 BLACKBIRD_CONFIG=${BLACKBIRD_CONFIG-/etc/blackbird/defaults.cfg}
 BLACKBIRD_PID_FILE=${BLACKBIRD_PID_FILE-/var/run/blackbird/blackbird.pid}
+BLACKBIRD_PID_LOCK_FILE=${BLACKBIRD_PID_FILE}.lock
 BLACKBIRD_LOCK_FILE=${BLACKBIRD_LOCK_FILE-/var/lock/subsys/blackbird}
 
 start() {
     echo -n $"Stating blackbird: "
+    if [ -e $BLACKBIRD_PID_LOCK_FILE ] ; then
+        failure
+        echo -e $"\n$BLACKBIRD_PID_LOCK_FILE exists. Please start blackbird after removing this file."
+        exit 1
+    fi
     $BLACKBIRD_EXEC -c $BLACKBIRD_CONFIG -p "$BLACKBIRD_PID_FILE"
     RETVAL=$?
     if [ $RETVAL -eq 0 ] ; then

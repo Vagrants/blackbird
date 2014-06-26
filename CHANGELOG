@@ -1,3 +1,6 @@
+* Thu Jun 26 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.4.0-1
+- Generate thread name from section
+
 * Tue Dec 24 2013 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.2.0-2
 - Update Timer Context
 

@@ -221,7 +221,7 @@ class JobCreator(object):
                      'Pleases change method name to "build_items"'
                      ''.format(plugin_name))
                 )
-                name = '-'.join([plugin_name, 'looped_method'])
+                name = '-'.join([section, 'looped_method'])
                 interval = 60
                 if 'interval' in options:
                     interval = options['interval']
@@ -234,7 +234,7 @@ class JobCreator(object):
                 }
 
             if hasattr(job_obj, 'build_items'):
-                name = '-'.join([plugin_name, 'build_items'])
+                name = '-'.join([section, 'build_items'])
                 interval = 60
                 if 'interval' in options:
                     interval = options['interval']
@@ -247,7 +247,7 @@ class JobCreator(object):
                 }
 
             if hasattr(job_obj, 'build_discovery_items'):
-                name = '-'.join([plugin_name, 'build_discovery_items'])
+                name = '-'.join([section, 'build_discovery_items'])
                 lld_interval = 600
                 if 'lld_interval' in options:
                     lld_interval = options['lld_interval']

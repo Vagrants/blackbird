@@ -95,6 +95,9 @@ service %{name} stop > /dev/null 2>&1 || \
 %config(noreplace) %{_sysconfdir}/logrotate.d/blackbird
 
 %changelog
+* Thu Jun 26 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.4.1.0-1
+- Generate thread name from section.
+
 * Tue Mar 4 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.4.0-5
 - Update init script. When "blackbird.pid.lock" file exists, blackbird does not start.
 

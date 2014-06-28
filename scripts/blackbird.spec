@@ -1,9 +1,9 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 %define name blackbird
-%define version 0.4.0
+%define version 0.4.1
 %define unmangled_version %{version}
-%define release 5%{dist}
+%define release 1%{dist}
 %define blackbird_user bbd
 %define blackbird_uid 187
 %define blackbird_group bbd

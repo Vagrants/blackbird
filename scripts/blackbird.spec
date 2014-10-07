@@ -5,7 +5,7 @@
 %define name blackbird
 %define version 0.4.1
 %define unmangled_version %{version}
-%define release 1%{dist}
+%define release 2%{dist}
 %define blackbird_user bbd
 %define blackbird_uid 187
 %define blackbird_group bbd

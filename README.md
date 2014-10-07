@@ -5,9 +5,9 @@ What is blackbird?
 ------------------
 
 `blackbird` is one like observation agent.
-At present\(sending data part is pluggable, so `blackbird` can send data to besides it\)
+At present \(sending data part is pluggable, so `blackbird` can send data to besides it\)
 `blackbird` send data to your zabbix server by using `zabbix sender protocol`.
-Following data exists as sending data.
+As sending data:
 
 * Middleware statistics information
     + e.g: nginx stub_status, memcached stats, redis INFO and others!
@@ -21,7 +21,7 @@ What plugin do we create?
 -------------------------
 
 Nginx, memcached, redis, MySQL5.5, AWS Elastic Load Blancing, AWS RDS, AWS DynamoDB and others!
-Please see [our plugins\(repositories under the github organization Vagrants\)](https://github.com/Vagrants)
+Please see [our plugins \(repositories under the github organization Vagrants \)](https://github.com/Vagrants).
 
 
 How to install blackbird
@@ -74,7 +74,7 @@ In this section, let's configure your blackbird.
 
 Write configuration file at first.
 Create following format file.
-In this step, you don't have to mind about configuration detail\(We provide documentation at github Pages.\).
+In this step, you don't have to mind about configuration detail \(We provide documentation at github Pages\).
 
 ```ini
 # global section configuration
@@ -98,7 +98,7 @@ module = netstat
 ```
 
 OK, your blackbird configuration file has been created.
-The strings surrounded by `[]` are * section * name.
+The strings surrounded by `[]` are *section* name.
 The section name is string to separate each configuration section.
 
 ### Step2 Run your blackbird

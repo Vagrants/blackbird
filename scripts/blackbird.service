@@ -1,0 +1,16 @@
+[Unit]
+Description=Blackbird - Daemon monitoring each middleware by using zabbix sender protocol.
+After=network.target
+
+[Service]
+Type=simple
+Environment="BLACKBIRD_CONFIG=/etc/blackbird/defaults.cfg"
+Environment="BLACKBIRD_PID_FILE=/var/run/blackbird/blackbird.pid"
+EnvironmentFile=-/etc/sysconfig/blackbird
+ExecStart=/usr/bin/blackbird -c ${BLACKBIRD_CONFIG} -p ${BLACKBIRD_PID_FILE} -f
+ExecStop=/bin/kill ${MAINPID}
+KillMode=process
+User=root
+
+[Install]
+WantedBy=multi-user.target

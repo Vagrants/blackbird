@@ -30,8 +30,10 @@ setup(
         "lockfile",
         "logilab-astng",
         "logilab-common",
-        "nose",
         "python-daemon",
+    ],
+    tests_require=[
+        'nose',
         "unittest2",
     ],
 )

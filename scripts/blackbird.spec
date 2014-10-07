@@ -1,5 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
+%define debug_package %{nil}
+
 %define name blackbird
 %define version 0.4.1
 %define unmangled_version %{version}
@@ -13,6 +15,12 @@
 %define include_cfg_dir %{_sysconfdir}/blackbird/conf.d
 %define plugins /opt/blackbird/plugins/
 
+%if 0%{?fedora} >= 15 || 0%{?rhel} >= 7
+%global with_systemd 1
+%else
+%global with_systemd 0
+%endif
+
 Summary: Daemon monitoring each middleware by using ZABBIX-SENDER
 Name: %{name}
 Version: %{version}
@@ -25,12 +33,32 @@ Prefix: %{_prefix}
 BuildArch: noarch
 Vendor: ARASHI, Jumpei <jumpei.arashi@arashike.com>
 Packager: ARASHI, Jumpei <jumpei.arashi@arashike.com>
-Requires: python-argparse python-configobj python-daemon python-ipaddr python-lockfile python-setuptools
 Url: https://github.com/Vagrants/blackbird.git
+Provides: %{name}
+Requires: python-argparse
+Requires: python-configobj
+Requires: python-daemon
+Requires: python-ipaddr
+Requires: python-lockfile
+Requires: python-setuptools
+Requires(pre):     shadow-utils
+%if 0%{?with_systemd}
+Requires(post):    systemd
+Requires(preun):   systemd
+Requires(postun):  systemd
+BuildRequires: systemd-units
+%else
+Requires(post):    chkconfig
+Requires(preun):   chkconfig
+Requires(preun):   initscripts
+Requires(postun):  initscripts
+%endif
 BuildRequires: python-setuptools
 
 %description
-UNKNOWN
+blackbird is one like observation agent.
+At present (sending data part is pluggable, so blackbird can send data to besides it)
+blackbird send data to your zabbix server by using zabbix sender protocol.
 
 %prep
 %setup -n %{name}-%{unmangled_version} -n %{name}-%{unmangled_version}
@@ -41,25 +69,30 @@ UNKNOWN
 %install
 %{__python} setup.py install --skip-build --root $RPM_BUILD_ROOT
 
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/blackbird
+mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/blackbird
 mkdir -p $RPM_BUILD_ROOT/opt/blackbird
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/init.d
-mkdir -p $RPM_BUILD_ROOT%{_bindir}
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.d
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig
+mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/init.d
+mkdir -p $RPM_BUILD_ROOT/%{_bindir}
+mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/logrotate.d
+mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/sysconfig
+mkdir -p $RPM_BUILD_ROOT/%{_unitdir}
 
-install -dm 0755 $RPM_BUILD_ROOT%{log_dir}
-install -dm 0755 $RPM_BUILD_ROOT%{pid_dir}
-install -dm 0755 $RPM_BUILD_ROOT%{include_cfg_dir}
-install -dm 0755 $RPM_BUILD_ROOT%{plugins}
+install -dm 0755 $RPM_BUILD_ROOT/%{log_dir}
+install -dm 0755 $RPM_BUILD_ROOT/%{pid_dir}
+install -dm 0755 $RPM_BUILD_ROOT/%{include_cfg_dir}
+install -dm 0755 $RPM_BUILD_ROOT/%{plugins}
 
-install -p -m 0755 scripts/blackbird.init $RPM_BUILD_ROOT%{_sysconfdir}/init.d/blackbird
-install -p -m 0755 scripts/blackbird.bin $RPM_BUILD_ROOT%{_bindir}/blackbird
-install -p -m 0644 scripts/blackbird.cfg $RPM_BUILD_ROOT%{_sysconfdir}/blackbird/defaults.cfg
-install -p -m 0644 scripts/blackbird-statistics.cfg $RPM_BUILD_ROOT%{_sysconfdir}/blackbird/conf.d/statistics.cfg
-install -p -m 0644 scripts/blackbird-zabbix_sender.cfg $RPM_BUILD_ROOT%{_sysconfdir}/blackbird/conf.d/zabbix_sender.cfg
-install -p -m 0644 scripts/blackbird.logrotate $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.d/blackbird
-install -p -m 0644 scripts/blackbird.sysconfig $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/blackbird
+install -p -m 0755 scripts/blackbird.bin $RPM_BUILD_ROOT/%{_bindir}/blackbird
+install -p -m 0644 scripts/blackbird.cfg $RPM_BUILD_ROOT/%{_sysconfdir}/blackbird/defaults.cfg
+install -p -m 0644 scripts/blackbird-statistics.cfg $RPM_BUILD_ROOT/%{_sysconfdir}/blackbird/conf.d/statistics.cfg
+install -p -m 0644 scripts/blackbird-zabbix_sender.cfg $RPM_BUILD_ROOT/%{_sysconfdir}/blackbird/conf.d/zabbix_sender.cfg
+install -p -m 0644 scripts/blackbird.logrotate $RPM_BUILD_ROOT/%{_sysconfdir}/logrotate.d/blackbird
+install -p -m 0644 scripts/blackbird.sysconfig $RPM_BUILD_ROOT/%{_sysconfdir}/sysconfig/blackbird
+%if 0%{?with_systemd}
+install -p -m 0755 scripts/blackbird.service $RPM_BUILD_ROOT/%{_unitdir}/blackbird.service
+%else
+install -p -m 0755 scripts/blackbird.init $RPM_BUILD_ROOT/%{_sysconfdir}/init.d/blackbird
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -71,11 +104,26 @@ getent passwd %{blackbird_user} > /dev/null || \
     useradd %{blackbird_user} -d /var/lib/%{name} -u %{blackbird_uid} -M -r -s /sbin/nologin -g %{blackbird_group}
 
 %post
+%if 0%{?with_systemd}
+%systemd_post %{name}.service
+%else
 /sbin/chkconfig --add %{name}
+%endif
 
 %preun
+%if 0%{?with_systemd}
+%systemd_preun %{name}.service
+%else
 service %{name} stop > /dev/null 2>&1 || \
     /sbin/chkconfig --del %{name}
+%endif
+
+%postun
+%if 0%{?with_systemd}
+%systemd_postun_with_restart %{name}.service
+%else
+service %{name} restart > /dev/null 2>&1 || :
+%endif
 
 %files
 %defattr(-,%{blackbird_user},%{blackbird_group})
@@ -90,11 +138,19 @@ service %{name} stop > /dev/null 2>&1 || \
 %config(noreplace) %{_sysconfdir}/sysconfig/blackbird
 %dir %{_sysconfdir}/blackbird
 %{python_sitelib}/*
-%{_sysconfdir}/init.d/blackbird
+%if 0%{?with_systemd}
+%{_unitdir}/%{name}.service
+%else
+%{_sysconfdir}/init.d/%{name}
+%endif
+
 %{_bindir}/blackbird
 %config(noreplace) %{_sysconfdir}/logrotate.d/blackbird
 
 %changelog
+* Tue Sep 7 2014 makocchi <makocchi@gmail.com> - 0.4.1-2
+- support systemd
+
 * Thu Jun 26 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.4.1-1
 - Generate thread name from section.
 
@@ -107,13 +163,13 @@ service %{name} stop > /dev/null 2>&1 || \
 * Thu Jan 30 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.4.0-3
 - Delete print debug.
 
-* Mon Jan 24 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.4.0-2
+* Fri Jan 24 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.4.0-2
 - separate submodule config file
 
-* Mon Jan 24 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.4.0-1
+* Fri Jan 24 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.4.0-1
 - Resolve sr71 bootstrap problem(self.config, self.logger)
 
-* Mon Jan 24 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.3.6-1
+* Fri Jan 24 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.3.6-1
 - Blackbird statistics.
 - Set default queue length.
 - Set global interval.

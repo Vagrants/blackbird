@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <title>Blackbird by Vagrants</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>Blackbird</h1>
+        <h2>The daemon to send data.</h2>
+
+        <section id="downloads">
+          <a href="https://github.com/Vagrants/blackbird/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/Vagrants/blackbird/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/Vagrants/blackbird" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <h1>
+<a name="blackbird" class="anchor" href="#blackbird"><span class="octicon octicon-link"></span></a>blackbird</h1>
+
+<h2>
+<a name="what-is-blackbird" class="anchor" href="#what-is-blackbird"><span class="octicon octicon-link"></span></a>What is blackbird?</h2>
+
+<p><code>blackbird</code> is one like observation agent.
+At present (sending data part is pluggable, so <code>blackbird</code> can send data to besides it)
+<code>blackbird</code> send data to your zabbix server by using <code>zabbix sender protocol</code>.
+As sending data:</p>
+
+<ul>
+<li>Middleware statistics information
+
+<ul>
+<li>e.g: nginx stub_status, memcached stats, redis INFO and others!</li>
+</ul>
+</li>
+<li>AWS resources usage and statistics (by using cloudwatch API)
+
+<ul>
+<li>e.g: Elastic Load Blancing, DynamoDB, RDS and others!</li>
+</ul>
+</li>
+</ul><p>So, you need to create nightmare shell script for zabbix user parameters no longer.</p>
+
+<h2>
+<a name="what-plugin-do-we-create" class="anchor" href="#what-plugin-do-we-create"><span class="octicon octicon-link"></span></a>What plugin do we create?</h2>
+
+<p>Nginx, memcached, redis, MySQL5.5, AWS Elastic Load Blancing, AWS RDS, AWS DynamoDB and others!
+Please see <a href="https://github.com/Vagrants">our plugins (repositories under the github organization Vagrants )</a>.</p>
+
+<h2>
+<a name="how-to-install-blackbird" class="anchor" href="#how-to-install-blackbird"><span class="octicon octicon-link"></span></a>How to install blackbird</h2>
+
+<p>Case of using <code>pip</code>.</p>
+
+<div class="highlight highlight-bash"><pre>pip install blackbird
+</pre></div>
+
+<p>Case of using <code>setup.py</code>.</p>
+
+<div class="highlight highlight-bash"><pre>python setup.py install
+</pre></div>
+
+<p>But if you installed on your PC, you may use <code>python setup.py develop</code>.
+The reason of using <code>develop</code>, it's easier to remove this when uninstalling <code>blackbird</code>.</p>
+
+<p>Case of using <code>rpm</code>.</p>
+
+<div class="highlight highlight-bash"><pre>yum install blackbird
+</pre></div>
+
+<p>note: In some cases, you may use <code>sudo</code> to install <code>blackbird</code> at each command.</p>
+
+<h2>
+<a name="how-to-install-blackbird-plugins" class="anchor" href="#how-to-install-blackbird-plugins"><span class="octicon octicon-link"></span></a>How to install blackbird plugins</h2>
+
+<p>Case of using <code>rpm</code>.</p>
+
+<div class="highlight highlight-bash"><pre>yum install blackbird-nginx blackbird-redis blackbird-memcached
+</pre></div>
+
+<h2>
+<a name="configure-to-your-blackbird" class="anchor" href="#configure-to-your-blackbird"><span class="octicon octicon-link"></span></a>Configure to your blackbird</h2>
+
+<p>OK, now you have installed <code>blackbird</code>.
+In this section, let's configure your blackbird.</p>
+
+<h3>
+<a name="outline" class="anchor" href="#outline"><span class="octicon octicon-link"></span></a>outline</h3>
+
+<ol>
+<li>Write blackbird configuration file.</li>
+<li>Run your blackbird</li>
+</ol><h3>
+<a name="step1-write-blackbird-configuration-file" class="anchor" href="#step1-write-blackbird-configuration-file"><span class="octicon octicon-link"></span></a>Step1 Write blackbird configuration file</h3>
+
+<p>Write configuration file at first.
+Create following format file.
+In this step, you don't have to mind about configuration detail (We provide documentation at github Pages).</p>
+
+<div class="highlight highlight-ini"><pre><span class="c1"># global section configuration</span>
+<span class="k">[global]</span>
+<span class="c1"># Execution user. Please change it if necessary.</span>
+<span class="na">user</span> <span class="o">=</span> <span class="s">nobody</span>
+<span class="c1"># Execution user group. Please change it if necessary.</span>
+<span class="na">group</span> <span class="o">=</span> <span class="s">nobody</span>
+<span class="na">log_file</span> <span class="o">=</span> <span class="s">/tmp/blackbird.log</span>
+<span class="na">log_level</span> <span class="o">=</span> <span class="s">debug</span>
+
+<span class="c1"># zabbix_sender module configuration</span>
+<span class="k">[zabbix_sender]</span>
+<span class="c1"># Change your zabbix server hostname</span>
+<span class="na">server</span> <span class="o">=</span> <span class="s">YOUR_ZABBIX_SERVER</span>
+<span class="na">module</span> <span class="o">=</span> <span class="s">zabbix_server</span>
+
+<span class="c1"># netstat module configuration</span>
+<span class="k">[netstat]</span>
+<span class="na">module</span> <span class="o">=</span> <span class="s">netstat</span>
+</pre></div>
+
+<p>OK, your blackbird configuration file has been created.
+The strings surrounded by <code>[]</code> are <em>section</em> name.
+The section name is string to separate each configuration section.</p>
+
+<h3>
+<a name="step2-run-your-blackbird" class="anchor" href="#step2-run-your-blackbird"><span class="octicon octicon-link"></span></a>Step2 Run your blackbird</h3>
+
+<p>In previous step, you have written blackbird configuration file.
+So, do let's run actually your blackbird.</p>
+
+<div class="highlight highlight-bash"><pre>blackbird --config YOUR_CONFIG_FILE_PATH --pid-file ./blackbird.pid --debug-mode
+</pre></div>
+
+<p>What do you see on your console(or terminal)?
+Perhaps, you can see that blackbird stacks data internal queue.</p>
+
+<h2>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p><code>blackbird</code> is released under the <a href="http://www.wtfpl.net/">WTFPL license</a> <img src="http://www.wtfpl.net/wp-content/uploads/2012/12/wtfpl-badge-4.png" alt="WTFPL license logo"></p>
+      </section>
+    </div>
+
+    
+  </body>
+</html>

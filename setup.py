@@ -15,6 +15,7 @@ setup(
     author='ARASHI, Jumpei',
     author_email='jumpei.arashi@arashike.com',
     url='https://github.com/Vagrants/blackbird',
+    license='WTFPL',
     packages=[
         'blackbird',
         'blackbird.plugins',

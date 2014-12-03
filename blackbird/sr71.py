@@ -33,15 +33,24 @@ class BlackBird(object):
         self.args = argumentparse.get_args()
 
         self.observers = configread.JobObserver()
-        self.config = configread.ConfigReader(
-            self.args.config, self.observers
-        ).config
+        self.config = self._get_config()
         self.logger = self._set_logger()
 
         self.jobs = None
 
         self._add_arguments(self.args)
         self._create_threads()
+
+    def _get_config(self):
+        try:
+            _config = configread.ConfigReader(
+                self.args.config, self.observers
+            )
+        except IOError as error:
+            sys.stderr.write(error.__str__() + '\n')
+            sys.exit(1)
+
+        return _config.config
 
     def _set_logger(self):
         if self.args.debug_mode:

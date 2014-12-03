@@ -43,8 +43,19 @@ The reason of using `develop`, it's easier to remove this when uninstalling `bla
 
 
 Case of using `rpm`.
+
+You need to create below `.repo` file.
+
+```repo
+[blackbird]
+name=blackbird package repository
+baseurl=https://vagrants.github.io/blackbird/repo/yum/6/x86_64
+enabled=0
+gpgcheck=0
+```
+
 ```bash
-yum install blackbird
+yum install --enablerepo=blackbird blackbird
 ```
 
 note: In some cases, you may use `sudo` to install `blackbird` at each command.
@@ -55,7 +66,7 @@ How to install blackbird plugins
 
 Case of using `rpm`.
 ```bash
-yum install blackbird-nginx blackbird-redis blackbird-memcached
+yum install --enablerepo=blackbird blackbird-nginx blackbird-redis blackbird-memcached
 ```
 
 

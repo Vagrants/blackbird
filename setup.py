@@ -27,7 +27,6 @@ setup(
     install_requires=[
         "argparse",
         "configobj",
-        "ipaddr",
         "lockfile",
         "logilab-astng",
         "logilab-common",

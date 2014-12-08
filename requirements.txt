@@ -1,6 +1,5 @@
 argparse==1.2.1
 configobj==4.7.2
-ipaddr==2.1.10
 lockfile==0.9.1
 logilab-astng==0.24.1
 logilab-common==0.59.0

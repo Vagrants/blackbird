@@ -171,7 +171,7 @@ class BlackbirdPluginError(Exception):
 class ValidatorBase(object):
     """
     e.g: check the validity of the values as follows:
-    host -> '127.0.0.1'(IPAddress),
+    host -> '127.0.0.1'(str),
     port -> '11211'(number of 0 - 65535)
     """
 
@@ -184,7 +184,7 @@ class ValidatorBase(object):
         "spec" property must be listed configobj's specfiles rules.
         e.g:
         [redis]
-        host = ipaddress(default='127.0.0.1')
+        host = string(default='127.0.0.1')
         port = port(0, 65535, default=6379)
 
         "configspec" as ConfigObj's argument must be

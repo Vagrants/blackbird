@@ -7,7 +7,6 @@ import configobj
 import errno
 import glob
 import grp
-import ipaddr
 import os
 import pkgutil
 import pwd
@@ -369,7 +368,7 @@ class ConfigReader(base.Subject):
         raw_specs = {
             'redis': (
                 "[redis]",
-                "host = ipaddress(default='127.0.0.1')",
+                "host = string(default='127.0.0.1')",
                 "port = integer(0, 65535, default=6379)",
                 "db = integer(default=0)",
                 "charset = string(default='utf-8')",
@@ -445,7 +444,7 @@ class ConfigReader(base.Subject):
         type definitions and default values in "spec file" as follow:
         [memcached]
         module = string('memcached')
-        host = ipaddr(default='127.0.0.1')
+        host = string(default='127.0.0.1')
         port = integer(0, 65535, default=11211)
 
         Notes: Must be the same all The following values.
@@ -461,7 +460,7 @@ class ConfigReader(base.Subject):
         Returned configspec is as follows:
         [local_memcached]
         module = string('memcached')
-        host = ipaddr(default='127.0.0.1')
+        host = string(default='127.0.0.1')
         port = integer(0, 65535, default=11211)
 
         In short Rename section name in spec file
@@ -484,9 +483,6 @@ class ConfigReader(base.Subject):
         """
 
         spec = self._create_specs()
-        functions = {
-            'ipaddress': is_ipaddress,
-        }
         validator = validate.Validator(functions=functions)
 
         self.config.configspec = spec
@@ -560,25 +556,6 @@ class NotSupportedError(ValueError):
                        )
 
         super(NotSupportedError, self).__init__(err_message)
-
-
-def is_ipaddress(value):
-    u"""
-    Check whether correct IPAdress.
-    This function is defferent with built-in "ip_addr"-type.
-    Built-in "ip_addr"-type only supports IPv4.
-    But, "ipaddr" (google products) supports both IPv4 and IPv6.
-    This function's name is not like "return_ipaddress", but "is_ipaddress"
-    because it's called by ConfigReader._validate().
-    Names of functions by used in _validate() must be "is_TYPE".
-    """
-
-    try:
-        ipaddress = ipaddr.IPAddress(value)
-    except ValueError:
-        raise validate.VdtValueError(value)
-
-    return ipaddress.exploded
 
 
 def is_dir(value):

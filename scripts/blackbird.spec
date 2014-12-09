@@ -3,9 +3,9 @@
 %define debug_package %{nil}
 
 %define name blackbird
-%define version 0.4.1
+%define version 0.4.2
 %define unmangled_version %{version}
-%define release 2%{dist}
+%define release 1%{dist}
 %define blackbird_user bbd
 %define blackbird_uid 187
 %define blackbird_group bbd
@@ -38,7 +38,6 @@ Provides: %{name}
 Requires: python-argparse
 Requires: python-configobj
 Requires: python-daemon
-Requires: python-ipaddr
 Requires: python-lockfile
 Requires: python-setuptools
 Requires(pre):     shadow-utils
@@ -148,6 +147,9 @@ service %{name} restart > /dev/null 2>&1 || :
 %config(noreplace) %{_sysconfdir}/logrotate.d/blackbird
 
 %changelog
+* Mon Dec 8 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.4.2-1
+- Get rid of python-ipaddr from "Requires"
+
 * Tue Sep 7 2014 makocchi <makocchi@gmail.com> - 0.4.1-2
 - support systemd
 

@@ -144,6 +144,7 @@ class BlackBird(object):
                 files_preserve=[
                     self.logger.handlers[0].stream
                 ],
+                detach_process=self.args.detach_process,
                 uid=self.config['global']['user'],
                 gid=self.config['global']['group'],
                 stdout=log_file,
@@ -199,9 +200,9 @@ class JobCreator(object):
             if section == 'global':
                 continue
 
-            #Since validate in utils/configread, does not occur here Error
-            #In the other sections are global,
-            #that there is a "module" option is collateral.
+            # Since validate in utils/configread, does not occur here Error
+            # In the other sections are global,
+            # that there is a "module" option is collateral.
             plugin_name = options['module']
             job_kls = self.plugins[plugin_name]
 

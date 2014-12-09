@@ -4,6 +4,7 @@ import argparse
 import os
 
 import validate
+from lockfile import AlreadyLocked
 
 
 def get_args():
@@ -33,6 +34,13 @@ def get_args():
                         ),
                         help='pid file location',
                         dest='pid_file'
+                        )
+
+    parser.add_argument('--foreground', '-f',
+                        default=True,
+                        action='store_false',
+                        help='Turn on foreground mode',
+                        dest='detach_process'
                         )
 
     args = parser.parse_args()
@@ -94,7 +102,7 @@ def is_pid(value):
 
         else:
             err_message = 'pid file already exists.'
-            raise lockfile.AlreadyLocked(err_message)
+            raise AlreadyLocked(err_message)
 
     else:
         directory = os.path.split(value)[0]

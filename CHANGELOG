@@ -1,3 +1,18 @@
+* Wed Dec 17 2014 makocchi <makocchi@gmail.com> - 0.4.4-1
+- Fix _validate() in configread.py
+
+* Tue Dec 9 2014 makocchi <makocchi@gmail.com> - 0.4.3-1
+- Support foreground option '-f'
+
+* Mon Dec 8 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.4.2-1
+- Get rid of python-ipaddr from "Requires"
+
+* Tue Sep 7 2014 makocchi <makocchi@gmail.com> - 0.4.1-2
+- support systemd
+
+* Thu Jun 26 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.4.1-1
+- Generate thread name from section.
+
 * Thu Jun 26 2014 ARASHI, Jumpei <jumpei.arashi@arashike.com> - 0.4.0-1
 - Generate thread name from section
 

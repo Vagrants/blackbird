@@ -483,6 +483,10 @@ class ConfigReader(base.Subject):
         """
 
         spec = self._create_specs()
+
+        # support in future
+        functions = {}
+
         validator = validate.Validator(functions=functions)
 
         self.config.configspec = spec

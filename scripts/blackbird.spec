@@ -3,7 +3,7 @@
 %define debug_package %{nil}
 
 %define name blackbird
-%define version 0.4.3
+%define version 0.4.4
 %define unmangled_version %{version}
 %define release 1%{dist}
 %define blackbird_user bbd
@@ -147,6 +147,9 @@ service %{name} restart > /dev/null 2>&1 || :
 %config(noreplace) %{_sysconfdir}/logrotate.d/blackbird
 
 %changelog
+* Wed Dec 17 2014 makocchi <makocchi@gmail.com> - 0.4.4-1
+- Fix _validate() in configread.py
+
 * Tue Dec 9 2014 makocchi <makocchi@gmail.com> - 0.4.3-1
 - Support foreground option '-f'
 

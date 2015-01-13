@@ -268,7 +268,7 @@ class ConfigReader(base.Subject):
             "log_level = log_level(default='warn')",
             "max_queue_length = integer(default=32767)",
             "lld_interval = integer(default=600)",
-            "interval = integer(default=10)"
+            "interval = integer(default=60)"
         )
 
         functions = {

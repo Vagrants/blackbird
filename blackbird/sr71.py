@@ -9,6 +9,7 @@ import threading
 import time
 from daemon import DaemonContext
 
+from blackbird import __version__
 from blackbird.utils import argumentparse
 from blackbird.utils import configread
 from blackbird.utils import logger
@@ -138,7 +139,10 @@ class BlackBird(object):
                          self.config['global']['group']
                          )
 
-            self.logger.info('started main process')
+            self.logger.info(
+                'blackbird {0} : started main process'.format(__version__)
+            )
+
             pid_file = pidlockfile.PIDLockFile(self.args.pid_file)
             with DaemonContext(
                 files_preserve=[
@@ -154,7 +158,10 @@ class BlackBird(object):
                 main_loop()
 
         else:
-            self.logger.info('started main process')
+            self.logger.info(
+                'blackbird {0} : started main process in debug mode'
+                ''.format(__version__)
+            )
             main_loop()
 
 
@@ -256,6 +263,11 @@ class JobCreator(object):
                     'interval': interval,
                 }
 
+                self.logger.info(
+                    'load plugin {0} (interval {1})'
+                    ''.format(plugin_name, interval)
+                )
+
             if hasattr(job_obj, 'build_discovery_items'):
                 name = '-'.join([section, 'build_discovery_items'])
                 lld_interval = 600
@@ -268,6 +280,11 @@ class JobCreator(object):
                     'method': job_obj.build_discovery_items,
                     'interval': lld_interval,
                 }
+
+                self.logger.info(
+                    'load plugin {0} (lld_interval {1})'
+                    ''.format(plugin_name, lld_interval)
+                )
 
         return jobs
 

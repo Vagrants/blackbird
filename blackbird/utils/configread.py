@@ -265,7 +265,7 @@ class ConfigReader(base.Subject):
             "user = user(default=bbd)",
             "group = group(default=bbd)",
             "log_file = log(default=/var/log/blackbird/blackbird.log)",
-            "log_level = log_level(default='warn')",
+            "log_level = log_level(default='info')",
             "max_queue_length = integer(default=32767)",
             "lld_interval = integer(default=600)",
             "interval = integer(default=60)"

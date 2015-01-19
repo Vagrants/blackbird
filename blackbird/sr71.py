@@ -61,8 +61,9 @@ class BlackBird(object):
             )
         else:
             logger_obj = logger.logger_factory(
-                self.config['global']['log_file'],
-                self.config['global']['log_level']
+                filename=self.config['global']['log_file'],
+                level=self.config['global']['log_level'],
+                fmt=self.config['global']['log_format']
             )
         return logger_obj
 
@@ -125,34 +126,26 @@ class BlackBird(object):
                         thread.join(1)
 
         if not self.args.debug_mode:
-            log_file = open(self.config['global']['log_file'], 'a+', 0)
-            log_file_stat = os.lstat(self.config['global']['log_file'])
-
-            if log_file_stat.st_uid != self.config['global']['user']:
-                os.chown(self.config['global']['log_file'],
-                         self.config['global']['user'],
-                         -1
-                         )
-            if log_file_stat.st_gid != self.config['global']['group']:
-                os.chown(self.config['global']['log_file'],
-                         -1,
-                         self.config['global']['group']
-                         )
-
-            self.logger.info(
-                'blackbird {0} : started main process'.format(__version__)
-            )
 
             pid_file = pidlockfile.PIDLockFile(self.args.pid_file)
+
+            self.logger.info(
+                'blackbird {0} : starting main process'.format(__version__)
+            )
+
+            if self.logger.handlers[0].__class__.__name__ == 'SysLogHandler':
+                # SysLogHandler has no attribute 'stream'
+                hander_fp = self.logger.handlers[0]
+            else:
+                hander_fp = self.logger.handlers[0].stream
+
             with DaemonContext(
-                files_preserve=[
-                    self.logger.handlers[0].stream
-                ],
+                files_preserve=[hander_fp],
                 detach_process=self.args.detach_process,
                 uid=self.config['global']['user'],
                 gid=self.config['global']['group'],
-                stdout=log_file,
-                stderr=log_file,
+                stdout=None,
+                stderr=None,
                 pidfile=pid_file
             ):
                 main_loop()

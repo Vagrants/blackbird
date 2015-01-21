@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-class BlackbirdError(Execption):
+class BlackbirdError(Exception):
     """
     blackbird error.
     """

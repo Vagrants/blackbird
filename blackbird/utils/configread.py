@@ -266,6 +266,7 @@ class ConfigReader(base.Subject):
             "group = group(default=bbd)",
             "log_file = log(default=/var/log/blackbird/blackbird.log)",
             "log_level = log_level(default='info')",
+            "log_format = log_format(default='ltsv')",
             "max_queue_length = integer(default=32767)",
             "lld_interval = integer(default=600)",
             "interval = integer(default=60)"
@@ -276,7 +277,8 @@ class ConfigReader(base.Subject):
             'group': is_group,
             'dir': extend_is_dir,
             'log': is_log,
-            'log_level': is_log_level
+            'log_level': is_log_level,
+            'log_format': is_log_format
         }
 
         validator = validate.Validator(functions=functions)
@@ -627,10 +629,14 @@ def is_log(value):
         Thus, create log file named 'hogehoge'.
 
     case3: complete non-exists path
-        is_pid('/tmp/hogehoge/fugafuga')
+        is_log('/tmp/hogehoge/fugafuga')
             IOError: [Error 2] No such file or directory.
         The last part of given path is only considered log_file's name.
         In this case, "fugafuga" is considered log_file's name.
+
+    case4: syslog case
+        is_log('syslog')
+            'syslog'
 
     In any case, check whether given path exists before checking permission.
 
@@ -639,6 +645,9 @@ def is_log(value):
 
            Recommended giving he full path including the file name.
     """
+
+    if value.lower() == 'syslog':
+        return 'syslog'
 
     value = os.path.expanduser(value)
     value = os.path.expandvars(value)
@@ -713,6 +722,23 @@ def is_log_level(value):
 
     else:
         err_message = ('"log_level" supported following value: '
+                       '{0}'.format(log_levels)
+                       )
+        raise validate.VdtValueError(err_message)
+
+def is_log_format(value):
+    u"""
+    Check whether the value as argument be included the following list.
+    ['ltsv', 'combined']
+    """
+
+    log_levels = ['ltsv', 'combined']
+
+    if value in log_levels:
+        return value
+
+    else:
+        err_message = ('"log_format" supported following value: '
                        '{0}'.format(log_levels)
                        )
         raise validate.VdtValueError(err_message)

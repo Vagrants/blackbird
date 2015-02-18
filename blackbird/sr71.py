@@ -133,14 +133,8 @@ class BlackBird(object):
                 'blackbird {0} : starting main process'.format(__version__)
             )
 
-            if self.logger.handlers[0].__class__.__name__ == 'SysLogHandler':
-                # SysLogHandler has no attribute 'stream'
-                hander_fp = self.logger.handlers[0]
-            else:
-                hander_fp = self.logger.handlers[0].stream
-
             with DaemonContext(
-                files_preserve=[hander_fp],
+                files_preserve=[logger.get_handler_fp(self.logger)],
                 detach_process=self.args.detach_process,
                 uid=self.config['global']['user'],
                 gid=self.config['global']['group'],

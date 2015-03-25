@@ -15,7 +15,6 @@ import validate
 
 from blackbird.utils import base as base
 from blackbird.utils import helpers
-from blackbird.utils import argumentparse
 
 
 class JobObserver(base.Observer):
@@ -55,13 +54,13 @@ class ConfigReader(base.Subject):
     def __init__(self, infile, observers=None):
         self.config = self._configobj_factory(infile)
 
-        #validate config file
+        # validate config file
         self._read_include()
         self.config['global'].update(self._set_default_module_dir())
         self._global_validate()
         self._validate()
 
-        #notify observers
+        # notify observers
         self._observers = []
         self.register(observers)
         self._register_jobs()
@@ -341,7 +340,7 @@ class ConfigReader(base.Subject):
         append "ConcreteJob" classes to JobObserver.jobs.
         """
 
-        #job_name is hard-corded
+        # job_name is hard-corded
         job_name = 'ConcreteJob'
         modules = self._get_modules()
 
@@ -382,7 +381,7 @@ class ConfigReader(base.Subject):
         raw_specs is used by ConfigReader._create_specs().
         """
 
-        #spec_name is hard-corded
+        # spec_name is hard-corded
         raw_specs = {}
         spec_name = 'Validator'
         modules = self._get_modules()
@@ -469,12 +468,13 @@ class ConfigReader(base.Subject):
         from [memcached] to specified [local_memcached] in conf/defaults.cfg.
         """
 
-        configspec = self._configobj_factory(infile=infile,
-                                             #file_error=False,
-                                             _inspec=True
-                                             )
+        configspec = self._configobj_factory(
+            infile=infile,
+            _inspec=True
+        )
 
-        #Override the name of section in spec file by given module as argument.
+        # Override the name of section in spec file
+        # by given module as argument.
         configspec.rename(module, section)
 
         return configspec
@@ -725,6 +725,7 @@ def is_log_level(value):
                        '{0}'.format(log_levels)
                        )
         raise validate.VdtValueError(err_message)
+
 
 def is_log_format(value):
     u"""

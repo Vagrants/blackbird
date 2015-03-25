@@ -71,7 +71,6 @@ class ConcreteJob(base.JobBase):
 
         self.build_statistics_item()
 
-
     def connect(self, address, port):
         try:
             conn = socket.create_connection(
@@ -86,17 +85,17 @@ class ConcreteJob(base.JobBase):
         request = json.dumps(self.body, ensure_ascii=False).encode('utf-8')
         fmt = '<4sBQ' + str(len(request)) + 's'
         data = struct.pack(fmt, 'ZBXD', 1, len(request), request)
- 
+
         writer = sock.makefile('wb')
         writer.write(data)
         writer.close()
- 
+
         reader = sock.makefile('rb')
         response = reader.read()
         reader.close()
- 
+
         sock.close()
- 
+
         fmt = '<4sBQ' + str(len(response) - struct.calcsize('<4sBQ')) + 's'
         self.result = struct.unpack(fmt, response)
 

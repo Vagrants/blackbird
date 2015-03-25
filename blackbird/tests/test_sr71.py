@@ -19,10 +19,10 @@ class TestJobCreater(object):
         self.config = None
         self.jobs = None
         self.queue = None
-        self.test_dir= 'tests'
+        self.test_dir = 'tests'
 
     def teardown(self):
-      
+
         # remove dir for test.
         tmp_dirs = glob.glob('tests/tmp*')
 
@@ -30,7 +30,7 @@ class TestJobCreater(object):
             os.removedirs(dir)
 
     def test_job_factory(self):
-        #Start of creating mock objects
+        # Start of creating mock objects
         module_path = tempfile.mkdtemp(dir=self.test_dir)
         cfg_str = (
             "[global]",
@@ -61,9 +61,9 @@ class TestJobCreater(object):
 
         job_mod.write(job_str)
         job_mod.seek(0)
-        #End of creating mock objects
+        # End of creating mock objects
 
-        observer = configread.JobObserver() 
+        observer = configread.JobObserver()
         reader = configread.ConfigReader(cfg_str, observers=observer)
         creater = sr71.JobCreater(reader.config,
                                   observer.jobs,
@@ -71,7 +71,7 @@ class TestJobCreater(object):
 
         threads = creater.job_factory()
 
-        #teardown remove tempfiles
+        # teardown remove tempfiles
         job_mod.close()
         os.remove(os.path.join(module_path, job_intermediate))
 

@@ -33,6 +33,10 @@ class BlackBird(object):
     def __init__(self):
         self.args = argumentparse.get_args()
 
+        # print version and exit 0
+        if self.args.show_version:
+            self._show_version()
+
         self.observers = configread.JobObserver()
         self.config = self._get_config()
         self.logger = self._set_logger()
@@ -48,7 +52,6 @@ class BlackBird(object):
                 self.args.config, self.observers
             )
         except Exception as error:
-            sys.stderr.write(error.__str__() + '\n')
             raise BlackbirdError(error)
 
         return _config.config
@@ -75,6 +78,7 @@ class BlackBird(object):
                 sys.version.split()[0]
             )
         )
+        sys.exit(0)
 
     def _add_arguments(self, args):
         """
@@ -117,10 +121,6 @@ class BlackBird(object):
         """
         main loop.
         """
-
-        if self.args.show_version:
-            self._show_version()
-            return(0)
 
         def main_loop():
             while True:
@@ -328,7 +328,7 @@ def main():
         sr71 = BlackBird()
         sr71.start()
     except BlackbirdError as error:
-        print error
+        sys.stderr.write(error.__str__() + '\n')
         return(1)
 
 if __name__ == '__main__':

@@ -3,7 +3,6 @@
 
 import Queue
 import inspect
-import os
 import sys
 import threading
 import time
@@ -13,6 +12,7 @@ from blackbird import __version__
 from blackbird.utils import argumentparse
 from blackbird.utils import configread
 from blackbird.utils import logger
+from blackbird.utils.error import BlackbirdError
 from blackbird.plugins.base import BlackbirdPluginError
 
 try:
@@ -47,9 +47,9 @@ class BlackBird(object):
             _config = configread.ConfigReader(
                 self.args.config, self.observers
             )
-        except IOError as error:
+        except Exception as error:
             sys.stderr.write(error.__str__() + '\n')
-            sys.exit(1)
+            raise BlackbirdError
 
         return _config.config
 
@@ -66,6 +66,15 @@ class BlackBird(object):
                 fmt=self.config['global']['log_format']
             )
         return logger_obj
+
+    def _show_version(self):
+        print (
+            'blackbird version {0} (python {1})'
+            ''.format(
+                __version__,
+                sys.version.split()[0]
+            )
+        )
 
     def _add_arguments(self, args):
         """
@@ -109,11 +118,15 @@ class BlackBird(object):
         main loop.
         """
 
+        if self.args.show_version:
+            self._show_version()
+            return(0)
+
         def main_loop():
             while True:
                 threadnames = [thread.name for thread in threading.enumerate()]
                 for job_name, concrete_job in self.jobs.items():
-                    if not job_name in threadnames:
+                    if job_name not in threadnames:
                         new_thread = Executor(
                             name=job_name,
                             job=concrete_job['method'],
@@ -304,13 +317,19 @@ class Executor(threading.Thread):
                 self.job()
             except BlackbirdPluginError as error:
                 self.logger.error(error)
-                exit(1)
+                raise BlackbirdError
 
 
 def main():
-    sr71 = BlackBird()
-    sr71.start()
-
+    """
+    main
+    """
+    try:
+        sr71 = BlackBird()
+        sr71.start()
+    except BlackbirdError as err:
+        print err
+        return(1)
 
 if __name__ == '__main__':
     main()

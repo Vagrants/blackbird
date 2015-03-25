@@ -49,7 +49,7 @@ class BlackBird(object):
             )
         except Exception as error:
             sys.stderr.write(error.__str__() + '\n')
-            raise BlackbirdError
+            raise BlackbirdError(error)
 
         return _config.config
 
@@ -317,7 +317,7 @@ class Executor(threading.Thread):
                 self.job()
             except BlackbirdPluginError as error:
                 self.logger.error(error)
-                raise BlackbirdError
+                raise BlackbirdError(error)
 
 
 def main():
@@ -327,8 +327,8 @@ def main():
     try:
         sr71 = BlackBird()
         sr71.start()
-    except BlackbirdError as err:
-        print err
+    except BlackbirdError as error:
+        print error
         return(1)
 
 if __name__ == '__main__':

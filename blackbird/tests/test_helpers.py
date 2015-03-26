@@ -8,6 +8,7 @@ from nose.tools import eq_
 
 from utils import helpers
 
+
 class TestImport(object):
     u"""custom import function"""
     def __init__(self):

@@ -9,6 +9,7 @@ put the items queue for "item".
 import blackbird
 from blackbird.plugins import base
 
+
 class ConcreteJob(base.JobBase):
     def __init__(self, options, queue=None, stats_queue=None, logger=None):
         super(ConcreteJob, self).__init__(options, queue, logger)

@@ -5,11 +5,11 @@
 import abc
 import datetime
 import json
-import math
 import socket
 import time
 
 from Queue import Full
+from blackbird.utils.error import BlackbirdError
 
 
 class JobBase(object):
@@ -24,9 +24,9 @@ class JobBase(object):
         self.invalid_key_list = None
 
     # TODO: looped_method to build_items
-    #@abc.abstractmethod
-    #def looped_method(self):
-        #raise NotImplementedError
+    # @abc.abstractmethod
+    # def looped_method(self):
+    #     raise NotImplementedError
 
     def enqueue(self, item, queue=None):
         """
@@ -99,8 +99,10 @@ class ItemBase(object):
         If "clock" is None, set the time now.
         This function is called self.__init__()
         """
-        if clock == None:
-            unix_timestamp = time.mktime(datetime.datetime.now().utctimetuple())
+        if clock is None:
+            unix_timestamp = time.mktime(
+                datetime.datetime.now().utctimetuple()
+            )
             timestamp = int(unix_timestamp)
 
             return timestamp
@@ -116,7 +118,10 @@ class DiscoveryItem(ItemBase):
         {
             'host': 'exmaple.com',
             'value': {
-                'data': [{'{#MACRO_NAME}': 'hogehoge001'}, {'{#MACRO_NAME}': 'hogehoge002'}],
+                'data': [
+                    {'{#MACRO_NAME}': 'hogehoge001'},
+                    {'{#MACRO_NAME}': 'hogehoge002'}
+                ],
             'key': 'YOUR_LLD_KEYNAME',
             'clock': 946652400
         }
@@ -154,7 +159,7 @@ class DiscoveryItem(ItemBase):
         self.__data['value'] = json.dumps(value)
 
 
-class BlackbirdPluginError(Exception):
+class BlackbirdPluginError(BlackbirdError):
     """
     blackbird error object.
     When an error occurs in plugin module,
@@ -235,6 +240,7 @@ class ValidatorBase(object):
 
     def detect_hostname(self):
         return socket.getfqdn() or socket.gethostname() or 'localhost'
+
 
 class Timer(object):
     """

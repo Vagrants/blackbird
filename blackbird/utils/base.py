@@ -3,6 +3,7 @@ u"""Base class used under the utils directory."""
 
 import abc
 
+
 class Observer(object):
     u"""Base class called Observer in Gof"""
 
@@ -16,6 +17,7 @@ class Observer(object):
         """
 
         raise NotImplementedError
+
 
 class Subject(object):
     u"""Base class called Subject in Gof"""

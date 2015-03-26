@@ -43,6 +43,13 @@ def get_args():
                         dest='detach_process'
                         )
 
+    parser.add_argument('--version', '-V',
+                        default=False,
+                        action='store_true',
+                        help='Show version information',
+                        dest='show_version'
+                        )
+
     args = parser.parse_args()
     args.pid_file = is_pid(args.pid_file)
 

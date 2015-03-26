@@ -35,7 +35,11 @@ def logger_factory(filename, level, fmt='ltsv'):
             facility=logging.handlers.SysLogHandler.LOG_LOCAL6
         )
     else:
-        handler = logging.handlers.WatchedFileHandler(filename, encoding='UTF-8', delay=True)
+        handler = logging.handlers.WatchedFileHandler(
+            filename,
+            encoding='UTF-8',
+            delay=True
+        )
 
     formats = {
         'ltsv': (
@@ -64,7 +68,8 @@ def logger_factory(filename, level, fmt='ltsv'):
 
 def get_handler_fp(logger):
     """
-    Get handler_fp. This method is integrated to LoggerFactory Object in the future.
+    Get handler_fp.
+    This method is integrated to LoggerFactory Object in the future.
     :param logging.Logger logger: Python logging.Logger. logger instance.
     :rtype: logging.Logger.handlers.BaseRotatingHandler
     :return: Handler or Handler's stream. We call it `handler_fp`.

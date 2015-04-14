@@ -1,5 +1,5 @@
-* Wed Dec 17 2014 makocchi <makocchi@gmail.com> - 0.4.4-1
-- Fix _validate() in configread.py
+* Tue Apr 14 2015 makocchi <makocchi@gmail.com> - 0.4.5-1
+- Add '--version' option
 
 * Tue Dec 9 2014 makocchi <makocchi@gmail.com> - 0.4.3-1
 - Support foreground option '-f'

@@ -26,15 +26,14 @@ setup(
     },
     install_requires=[
         "argparse",
-        "configobj",
+        "configobj>=4.0,<5.0",
         "lockfile",
         "logilab-astng",
         "logilab-common",
         "python-daemon",
     ],
     tests_require=[
-        'nose',
-        "unittest2",
+        'nose'
     ],
     classifiers=[
         'Programming Language :: Python :: 2.6',

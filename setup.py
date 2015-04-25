@@ -26,7 +26,7 @@ setup(
     },
     install_requires=[
         "argparse",
-        "configobj>=4.0,<5.0",
+        "configobj>=5.0",
         "lockfile",
         "logilab-astng",
         "logilab-common",

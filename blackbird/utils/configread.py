@@ -56,8 +56,8 @@ class ConfigReader(base.Subject):
         self.config = self._configobj_factory(infile)
 
         # validate config file
-        self._merge_include_config()
-        self.config['global'].update(self._set_default_module_dir())
+        self._merge_includes()
+        self.config['global'].update(self._get_default_module_dir())
         self._global_validate()
         self._validate()
 
@@ -146,7 +146,7 @@ class ConfigReader(base.Subject):
     def _set_global_include(self, path):
         self.config['global']['include'] = path
 
-    def _merge_include_config(self):
+    def _merge_includes(self):
         """
         If "include" option exists in "default.cfg",
         read the file(glob-match) in the directory.
@@ -223,7 +223,7 @@ class ConfigReader(base.Subject):
         for observer in self._observers:
             observer.update(name, job)
 
-    def _set_default_module_dir(self):
+    def _get_default_module_dir(self):
         """
         Default "module_dir" is "./plugins" and "/opt/blackbird/plugins".
         "./plugins" is relative path from ./sr71.py.

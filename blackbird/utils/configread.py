@@ -57,9 +57,8 @@ class ConfigReader(base.Subject):
 
         # validate config file
         self._merge_includes()
+        # TODO: remove this
         self.config['global'].update(self._get_default_module_dir())
-        self._global_validate()
-        self._validate()
 
         # notify observers
         self._observers = []
@@ -202,7 +201,7 @@ class ConfigReader(base.Subject):
                 self._observers.remove(self._observers[index])
             except ValueError:
                 # logging
-                print('{observer} not in list...'.format(observer))
+                print('{observer} not in list...'.format(observers))
 
         else:
             err_message = ('ConfigReader.register support'
@@ -248,7 +247,7 @@ class ConfigReader(base.Subject):
         option = {'module_dir': module_dirs}
         return option
 
-    def _global_validate(self):
+    def global_validate(self):
         """
         Validate only global section.
         The options in global section
@@ -495,7 +494,7 @@ class ConfigReader(base.Subject):
 
         return configspec
 
-    def _validate(self):
+    def validate(self):
         """
         validate whether value in config file is correct.
         """

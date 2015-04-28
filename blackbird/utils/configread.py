@@ -4,7 +4,6 @@ Read config file(default: conf/defaults.cfg)
 Default config file name is hard-corded.
 """
 import configobj
-import errno
 import glob
 import grp
 import os
@@ -94,7 +93,7 @@ class ConfigReader(base.Subject):
                                    _inspec=_inspec
                                    )
 
-    def _get_include_abs_path(self, path):
+    def _get_global_include_abs_path(self, path):
         """
         Get a value after converting to absolute path.
         Becoming different from other parameter,
@@ -105,17 +104,24 @@ class ConfigReader(base.Subject):
         :rtype: str
         :return: absolute path
         """
-
-        result = path
-
         if not os.path.isabs(path):
             path = os.path.abspath(path)
-            result = os.path.abspath(path)
 
         if os.path.isdir(path):
-            result = os.path.join(path, '*')
+            path = os.path.join(path, '*')
 
-        else:
+        return path
+
+    def _validate_global_include(self, path):
+        """
+        Normally validation method is writen in each validation of parameters.
+        But `include` of global section needs to be read before validation.
+
+        :param str path: absolute path
+        :rtype: bool
+        :return: If given path passes validation, returns True.
+        """
+        if not os.path.isdir(path):
             path = os.path.dirname(path)
 
         if os.path.exists(path):
@@ -135,7 +141,7 @@ class ConfigReader(base.Subject):
                 )
             )
 
-        return result
+        return True
 
     def _set_global_include(self, path):
         self.config['global']['include'] = path
@@ -145,18 +151,19 @@ class ConfigReader(base.Subject):
         If "include" option exists in "default.cfg",
         read the file(glob-match) in the directory.
         """
-        raw_include_dir = self.config['global'].get('include')
-        if raw_include_dir:
-            abs_include_dir = self._get_include_abs_path(raw_include_dir)
-            self._set_global_include(abs_include_dir)
+        raw_include_path = self.config['global'].get('include')
+        if raw_include_path:
+            abs_include_path = self._get_global_include_abs_path(raw_include_path)
+            self._validate_global_include(abs_include_path)
+            self._set_global_include(abs_include_path)
 
-            for infile in glob.glob(abs_include_dir):
+            for infile in glob.glob(abs_include_path):
                 self.config.merge(
                     self._configobj_factory(infile=infile)
                 )
 
     def register(self, observers):
-        u"""
+        """
         Concrete method of Subject.register().
         Register observers as an argument to self.observers.
         """

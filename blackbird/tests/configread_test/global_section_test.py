@@ -15,39 +15,6 @@ from blackbird.utils.configread import ConfigReader
 
 
 class TestIncludeDir(ConfigReaderBase):
-    def set_include_glob_test(self):
-        """
-        ConfigReader._set_include() give glob to value.
-        When you specify 'glob' such as 'conf.d/*' to include option,
-        ConfigReader stored 'conf.d/*' config object.
-        """
-        cfg_lines = (
-            '[global]',
-            'include = {0}/conf.d/*'.format(self.tmp_dir),
-        )
-        os.mkdir('{0}/conf.d'.format(self.tmp_dir))
-        check_value = '{0}/conf.d/*'.format(self.tmp_dir)
-        config = ConfigReader(infile=cfg_lines).config
-
-        eq_(config['global']['include'], check_value,
-            msg='Stored value: {0}'.format(config['global']['include']))
-
-    def set_include_dir_test(self):
-        """
-        ConfigReader._set_include() give directory to value.
-        When you specify 'directory' such as 'conf.d' to include option,
-        ConfigReader complements 'conf.d/*' stored config object.
-        """
-        cfg_lines = (
-            '[global]',
-            'include = {0}/conf.d'.format(self.tmp_dir),
-        )
-        os.mkdir('{0}/conf.d'.format(self.tmp_dir))
-        check_value = '{0}/conf.d/*'.format(self.tmp_dir)
-        config = ConfigReader(infile=cfg_lines).config
-
-        eq_(config['global']['include'], check_value,
-            msg='Stored value: {0}'.format(config['global']['include']))
 
     @raises(IOError)
     def set_include_does_not_exists_test(self):

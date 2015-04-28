@@ -106,6 +106,7 @@ class ConfigReader(base.Subject):
         if not os.path.isabs(path):
             path = os.path.abspath(path)
 
+        # If `path` is non-exist directory, os.path.isdir returns always False.
         if os.path.isdir(path):
             path = os.path.join(path, '*')
 

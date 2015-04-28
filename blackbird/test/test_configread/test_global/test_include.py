@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 
 import os
+import shutil
 
 import nose.tools
 
 import blackbird.utils.configread
+import blackbird.utils.error
 
 
-class TestGlobalIncludeSection(object):
+class TestConfigReaderGetGlobalIncludeAbsPath(object):
 
     def __init__(self):
         infile = (
@@ -59,3 +61,55 @@ class TestGlobalIncludeSection(object):
             os.path.isabs(test_value) and
             test_value.endswith('*')
         )
+
+
+class TestConfigReaderValidateGlobalInclude(object):
+
+    def __init__(self):
+        infile = (
+            '[global]',
+            'user = nobody',
+            'group = nobody'
+        )
+        self.test_config = blackbird.utils.configread.ConfigReader(
+            infile=infile
+        )
+        self.tmp_dir = os.path.join(
+            __file__, '../../tmp'
+        )
+        self.tmp_dir = os.path.abspath(self.tmp_dir)
+
+    def teardown(self):
+        if os.path.exists(self.tmp_dir):
+            shutil.rmtree(self.tmp_dir, ignore_errors=True)
+
+    def test_abs_path(self):
+        test_value = os.path.join(
+            __file__, '../../etc/*'
+        )
+        test_value = os.path.abspath(test_value)
+        nose.tools.ok_(
+            self.test_config._validate_global_include(test_value)
+        )
+
+    @nose.tools.raises(
+        blackbird.utils.error.BlackbirdError
+    )
+    def test_non_exists_abs_path(self):
+        test_value = os.path.join(
+            __file__, '../../etc/hogehoge/*'
+        )
+        test_value = os.path.abspath(test_value)
+        self.test_config._validate_global_include(test_value)
+
+    # Using `mkdir` is compelling for like this test.
+    @nose.tools.raises(
+        blackbird.utils.error.BlackbirdError
+    )
+    def test_cannot_read_abs_path(self):
+        tmp_dir = os.path.join(
+            __file__, '../../tmp'
+        )
+        tmp_dir = os.path.abspath(tmp_dir) + '/'
+        os.mkdir(tmp_dir, 0o000)
+        self.test_config._validate_global_include(tmp_dir)

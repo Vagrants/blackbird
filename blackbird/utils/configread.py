@@ -106,8 +106,7 @@ class ConfigReader(base.Subject):
         if not os.path.isabs(path):
             path = os.path.abspath(path)
 
-        # If `path` is non-exist directory, os.path.isdir returns always False.
-        if os.path.isdir(path):
+        if os.path.isdir(path) or path.endswith('/'):
             path = os.path.join(path, '*')
 
         return path
@@ -121,7 +120,7 @@ class ConfigReader(base.Subject):
         :rtype: bool
         :return: If given path passes validation, returns True.
         """
-        if not os.path.isdir(path):
+        if not path.endswith('/'):
             path = os.path.dirname(path)
 
         if os.path.exists(path):
@@ -129,7 +128,7 @@ class ConfigReader(base.Subject):
                 raise blackbird.utils.error.BlackbirdError(
                     message=(
                         '{0}: Permission denied.'
-                        ''.format()
+                        ''.format(path)
                     )
                 )
 

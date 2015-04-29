@@ -14,62 +14,6 @@ from blackbird.utils import configread
 from blackbird.utils.configread import ConfigReader
 
 
-class TestIncludeDir(ConfigReaderBase):
-
-    def read_include_exists_test(self):
-        """
-        ConfigReader._read_include() read the files exists.
-
-        Create include file named conf.d/NamedTemporaryFile.cfg,
-        and read the this file, add this file's information config obj.
-        """
-        cfg_lines = (
-            '[global]',
-            'include = {0}/conf.d/*.cfg'.format(self.tmp_dir),
-        )
-        include_lines = (
-            '[local_memcached]\n'
-            'module = memcached'
-        )
-        os.mkdir('{0}/conf.d'.format(self.tmp_dir))
-        include_file = tempfile.NamedTemporaryFile(
-            suffix='.cfg',
-            dir='{0}/conf.d'.format(self.tmp_dir),
-        )
-        include_file.write(include_lines)
-        include_file.seek(0)
-
-        config = ConfigReader(infile=cfg_lines).config
-        include_file.close()
-        ok_('local_memcached' in config,
-            msg='All config value: {0}'.format(config))
-
-    def read_include_no_match_glob_test(self):
-        """
-        ConfigReader._read_include() specify include but no match glob files.
-        """
-        cfg_lines = (
-            '[global]',
-            'include = {0}/conf.d/*.cfg'.format(self.tmp_dir),
-        )
-        include_lines = (
-            '[local_memcached]\n'
-            'module = memcached'
-        )
-        os.mkdir('{0}/conf.d'.format(self.tmp_dir))
-        include_file = tempfile.NamedTemporaryFile(
-            suffix='.conf',
-            dir='{0}/conf.d'.format(self.tmp_dir),
-        )
-        include_file.write(include_lines)
-        include_file.seek(0)
-
-        config = ConfigReader(infile=cfg_lines).config
-        include_file.close()
-        eq_('local_memcached' in config, False,
-            msg='Wrong config files are read.')
-
-
 class TestSetModuleDir(ConfigReaderBase):
     """
     Tests suite for ConfigReader._set_default_module_dir().

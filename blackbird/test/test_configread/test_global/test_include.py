@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import glob
 import shutil
 
 import nose.tools
@@ -113,3 +114,40 @@ class TestConfigReaderValidateGlobalInclude(object):
         tmp_dir = os.path.abspath(tmp_dir) + '/'
         os.mkdir(tmp_dir, 0o000)
         self.test_config._validate_global_include(tmp_dir)
+
+
+class TestConfigReaderMergeIncludes(object):
+
+    def __init__(self):
+        self.include_dir = os.path.join(
+            os.path.dirname(__file__), '../etc/blackbird/conf.d/'
+        )
+        infile = (
+            '[global]',
+            'user = nobody',
+            'group = nobody',
+            'include = {0}'.format(self.include_dir)
+        )
+        self.test_config = blackbird.utils.configread.ConfigReader(
+            infile=infile
+        )
+
+    def teardown(self):
+        for config in glob.glob(self.include_dir + '*'):
+            os.remove(config)
+
+    def test_merge_one_config(self):
+        infile = (
+            '[test_statistics]\n',
+            'module = statistics'
+        )
+        with open(
+            os.path.join(self.include_dir, 'test_stats.cfg'), 'w'
+        ) as f:
+            f.writelines(infile)
+
+        self.test_config._merge_includes()
+        nose.tools.ok_(
+            'test_statistics' in self.test_config.config.keys()
+        )
+

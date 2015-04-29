@@ -142,6 +142,9 @@ class ConfigReader(base.Subject):
 
         return True
 
+    def get_global_include(self):
+        return self.config['global'].get('include')
+
     def _set_global_include(self, path):
         self.config['global']['include'] = path
 
@@ -150,7 +153,7 @@ class ConfigReader(base.Subject):
         If "include" option exists in "default.cfg",
         read the file(glob-match) in the directory.
         """
-        raw_include_path = self.config['global'].get('include')
+        raw_include_path = self.get_global_include()
         if raw_include_path:
             abs_include_path = self._get_global_include_abs_path(raw_include_path)
             self._validate_global_include(abs_include_path)

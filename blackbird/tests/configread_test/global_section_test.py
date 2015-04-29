@@ -16,34 +16,6 @@ from blackbird.utils.configread import ConfigReader
 
 class TestIncludeDir(ConfigReaderBase):
 
-    @raises(IOError)
-    def set_include_does_not_exists_test(self):
-        """
-        ConfigReader._set_include() does not exists directory.
-        If you specify the directory that does not exists
-        to include option,
-        ConfigReader raises IOError.
-        """
-        cfg_lines = (
-            '[global]',
-            'include = {0}/NotExistDirectory/*'.format(self.tmp_dir),
-        )
-        ConfigReader(infile=cfg_lines)
-
-    @raises(OSError)
-    def set_incude_cannot_read_test(self):
-        """
-        ConfigReader._set_include() cannnot read directory.
-        If you specify the directory that cannot read to include option,
-        ConfigReader raises OSError.
-        """
-        cfg_lines = (
-            '[global]',
-            'include = {0}/CannotReadDirectory/*'.format(self.tmp_dir),
-        )
-        os.mkdir('{0}/CannotReadDirectory'.format(self.tmp_dir), 0000)
-        ConfigReader(infile=cfg_lines)
-
     def read_include_exists_test(self):
         """
         ConfigReader._read_include() read the files exists.

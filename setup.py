@@ -12,7 +12,7 @@ setup(
     name='blackbird',
     version=blackbird.__version__,
     description='Daemon that monitor each middleware by using ZABBIX-SENDER',
-    author='ARASHI, Jumpei',
+    author='Vagrants',
     author_email='jumpei.arashi@arashike.com',
     url='https://github.com/Vagrants/blackbird',
     license='WTFPL',
@@ -26,7 +26,7 @@ setup(
     },
     install_requires=[
         "argparse",
-        "configobj>=4.0,<5.0",
+        "configobj>=5.0",
         "lockfile",
         "logilab-astng",
         "logilab-common",

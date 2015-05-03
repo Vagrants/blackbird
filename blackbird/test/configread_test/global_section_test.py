@@ -9,126 +9,10 @@ import validate
 
 from nose.tools import eq_, ok_, raises
 
-from blackbird.tests.configread_test.base import ConfigReaderBase
+from blackbird.test.configread_test.base import ConfigReaderBase
 from blackbird.utils import configread
+from blackbird.utils import argumentparse
 from blackbird.utils.configread import ConfigReader
-
-
-class TestIncludeDir(ConfigReaderBase):
-    def set_include_glob_test(self):
-        """
-        ConfigReader._set_include() give glob to value.
-        When you specify 'glob' such as 'conf.d/*' to include option,
-        ConfigReader stored 'conf.d/*' config object.
-        """
-        cfg_lines = (
-            '[global]',
-            'include = {0}/conf.d/*'.format(self.tmp_dir),
-        )
-        os.mkdir('{0}/conf.d'.format(self.tmp_dir))
-        check_value = '{0}/conf.d/*'.format(self.tmp_dir)
-        config = ConfigReader(infile=cfg_lines).config
-
-        eq_(config['global']['include'], check_value,
-            msg='Stored value: {0}'.format(config['global']['include']))
-
-    def set_include_dir_test(self):
-        """
-        ConfigReader._set_include() give directory to value.
-        When you specify 'directory' such as 'conf.d' to include option,
-        ConfigReader complements 'conf.d/*' stored config object.
-        """
-        cfg_lines = (
-            '[global]',
-            'include = {0}/conf.d'.format(self.tmp_dir),
-        )
-        os.mkdir('{0}/conf.d'.format(self.tmp_dir))
-        check_value = '{0}/conf.d/*'.format(self.tmp_dir)
-        config = ConfigReader(infile=cfg_lines).config
-
-        eq_(config['global']['include'], check_value,
-            msg='Stored value: {0}'.format(config['global']['include']))
-
-    @raises(IOError)
-    def set_include_does_not_exists_test(self):
-        """
-        ConfigReader._set_include() does not exists directory.
-        If you specify the directory that does not exists
-        to include option,
-        ConfigReader raises IOError.
-        """
-        cfg_lines = (
-            '[global]',
-            'include = {0}/NotExistDirectory/*'.format(self.tmp_dir),
-        )
-        ConfigReader(infile=cfg_lines)
-
-    @raises(OSError)
-    def set_incude_cannot_read_test(self):
-        """
-        ConfigReader._set_include() cannnot read directory.
-        If you specify the directory that cannot read to include option,
-        ConfigReader raises OSError.
-        """
-        cfg_lines = (
-            '[global]',
-            'include = {0}/CannotReadDirectory/*'.format(self.tmp_dir),
-        )
-        os.mkdir('{0}/CannotReadDirectory'.format(self.tmp_dir), 0000)
-        ConfigReader(infile=cfg_lines)
-
-    def read_include_exists_test(self):
-        """
-        ConfigReader._read_include() read the files exists.
-
-        Create include file named conf.d/NamedTemporaryFile.cfg,
-        and read the this file, add this file's information config obj.
-        """
-        cfg_lines = (
-            '[global]',
-            'include = {0}/conf.d/*.cfg'.format(self.tmp_dir),
-        )
-        include_lines = (
-            '[local_memcached]\n'
-            'module = memcached'
-        )
-        os.mkdir('{0}/conf.d'.format(self.tmp_dir))
-        include_file = tempfile.NamedTemporaryFile(
-            suffix='.cfg',
-            dir='{0}/conf.d'.format(self.tmp_dir),
-        )
-        include_file.write(include_lines)
-        include_file.seek(0)
-
-        config = ConfigReader(infile=cfg_lines).config
-        include_file.close()
-        ok_('local_memcached' in config,
-            msg='All config value: {0}'.format(config))
-
-    def read_include_no_match_glob_test(self):
-        """
-        ConfigReader._read_include() specify include but no match glob files.
-        """
-        cfg_lines = (
-            '[global]',
-            'include = {0}/conf.d/*.cfg'.format(self.tmp_dir),
-        )
-        include_lines = (
-            '[local_memcached]\n'
-            'module = memcached'
-        )
-        os.mkdir('{0}/conf.d'.format(self.tmp_dir))
-        include_file = tempfile.NamedTemporaryFile(
-            suffix='.conf',
-            dir='{0}/conf.d'.format(self.tmp_dir),
-        )
-        include_file.write(include_lines)
-        include_file.seek(0)
-
-        config = ConfigReader(infile=cfg_lines).config
-        include_file.close()
-        eq_('local_memcached' in config, False,
-            msg='Wrong config files are read.')
 
 
 class TestSetModuleDir(ConfigReaderBase):
@@ -147,6 +31,8 @@ class TestSetModuleDir(ConfigReaderBase):
         )
         config = ConfigReader(infile=cfg_lines).config
         check_value = os.path.abspath('plugins')
+
+        print os.path.abspath(os.path.curdir)
 
         ok_(check_value in config['global']['module_dir'],
             msg=('Doesn\'t insert default "module_dir" value.'
@@ -182,27 +68,23 @@ class TestValidateHelpersIsDir(ConfigReaderBase):
     """
     configread.is_dir() tests. This function is helper function for validation.
     """
-    def is_dir_valid_directory_test(self):
-        check_value = os.path.join(self.tmp_dir, 'test_dir')
-        os.mkdir(check_value)
+    def test_exist_directory(self):
+        ok_(
+            configread.is_dir(
+                os.path.dirname(__file__)
+            )
+        )
 
-        ok_(configread.is_dir(check_value))
-
-    @raises(IOError)
-    def is_dir_not_exists_test(self):
-        check_value = os.path.join(self.tmp_dir, 'test_dir')
-
-        ok_(configread.is_dir(check_value))
+    @raises(validate.VdtValueError)
+    def test_non_exist_directory(self):
+        ok_(configread.is_dir('/hogehoge'))
 
     @raises(validate.VdtTypeError)
-    def is_dir_valid_file_test(self):
-        tmp_file = tempfile.NamedTemporaryFile(dir=self.tmp_dir)
-        check_value = os.path.join(self.tmp_dir, tmp_file.name)
+    def exist_file_test(self):
+        ok_(configread.is_dir(__file__))
 
-        ok_(configread.is_dir(check_value))
-
-    @raises(OSError)
-    def is_dir_valid_cannot_read_test(self):
+    @raises(validate.VdtValueError)
+    def test_cannot_read_directory(self):
         check_value = os.path.join(self.tmp_dir, 'test_dir')
         os.mkdir(check_value, 0000)
 
@@ -210,73 +92,70 @@ class TestValidateHelpersIsDir(ConfigReaderBase):
 
 
 class TestValidateHelpersIsPid(ConfigReaderBase):
-    """
-    configread.is_pid() tests. This function is helper function for validation.
-    """
     def __init__(self):
         self.pid_name = 'blackbird.pid'
 
-    def is_pid_valid_file_test(self):
+    def test_valid_file(self):
         check_value = os.path.join(self.tmp_dir, self.pid_name)
 
-        eq_(configread.is_pid(check_value), check_value)
+        eq_(argumentparse.is_pid(check_value), check_value)
 
     @raises(lockfile.AlreadyLocked)
-    def is_pid_already_exists(self):
+    def test_already_exists(self):
         pid_file = tempfile.NamedTemporaryFile(dir=self.tmp_dir)
         check_value = os.path.join(self.tmp_dir, pid_file.name)
 
-        ok_(configread.is_pid(check_value))
+        ok_(argumentparse.is_pid(check_value))
 
-    def is_pid_valid_dir_test(self):
-        pid_dir = os.path.join(self.tmp_dir, 'pid_dir')
-        os.mkdir(pid_dir)
-        check_value = os.path.join(pid_dir, self.pid_name)
+    def test_exist_dir(self):
+        dirname = os.path.dirname(__file__)
+        eq_(
+            argumentparse.is_pid(dirname),
+            os.path.join(
+                dirname, self.pid_name
+            )
+        )
 
-        eq_(configread.is_pid(pid_dir), check_value)
-
-    @raises(OSError)
-    def is_pid_cannot_write_dir_test(self):
-        pid_dir = os.path.join(self.tmp_dir, 'pid_dir')
-        os.mkdir(pid_dir, 0000)
-
-        ok_(configread.is_pid(pid_dir))
-
-    @raises(OSError)
-    def is_pid_cannot_write_upper_dir_test(self):
+    @raises(validate.VdtValueError)
+    def test_cannot_write_dir(self):
         pid_dir = os.path.join(self.tmp_dir, 'pid_dir')
         os.mkdir(pid_dir, 0000)
 
-        ok_(configread.is_pid(os.path.join(pid_dir, self.pid_name)))
+        ok_(argumentparse.is_pid(pid_dir))
+
+    @raises(validate.VdtValueError)
+    def test_cannot_write_upper_dir(self):
+        pid_dir = os.path.join(self.tmp_dir, 'pid_dir')
+        os.mkdir(pid_dir, 0000)
+
+        ok_(argumentparse.is_pid(os.path.join(pid_dir, self.pid_name)))
 
     @raises(validate.VdtTypeError)
-    def is_pid_upper_dir_is_file_test(self):
-        tmp_file = tempfile.NamedTemporaryFile(dir=self.tmp_dir)
-        check_value = os.path.join(self.tmp_dir, tmp_file.name, self.pid_name)
-
-        ok_(configread.is_pid(check_value))
-
-    @raises(IOError)
-    def is_pid_upper_dir_not_exists_test(self):
-        check_value = os.path.join(
-            self.tmp_dir,
-            'NotExistsDirectory',
-            self.pid_name
+    def test_assume_file_to_directory(self):
+        ok_(
+            argumentparse.is_pid(
+                os.path.join(__file__, self.pid_name)
+            )
         )
-        ok_(configread.is_pid(check_value))
+
+    @raises(validate.VdtValueError)
+    def is_pid_upper_dir_not_exists_test(self):
+        ok_(
+            argumentparse.is_pid(
+                os.path.join('/hogehoge', self.pid_name)
+            )
+        )
 
 
 class TestValidateHelpersIsLog(ConfigReaderBase):
     """
-    configread.is_log() tests.
-    This function checks
-    whether 'log_file' option in global section is valid value.
+    Test suite of blackbird.utils.configread.is_log
     """
 
     def __init__(self):
         self.log_name = 'blackbird.log'
 
-    def is_log_fist_time_exec_test(self):
+    def test_non_exist_file(self):
         """
         case specified value as following:
         /var/log/blackbird.log
@@ -284,11 +163,13 @@ class TestValidateHelpersIsLog(ConfigReaderBase):
             + This means often the first-time execution of blackbird.
         * /var/log(directory) exists.
         """
-        check_value = os.path.join(self.tmp_dir, self.log_name)
-        eq_(configread.is_log(check_value), check_value)
+        value = os.path.join(os.path.dirname(__file__), self.log_name)
+        eq_(
+            configread.is_log(value), value
+        )
 
-    @raises(OSError)
-    def is_log_cannot_write_upper_dir_test(self):
+    @raises(validate.VdtValueError)
+    def test_cannot_write_upper_dir(self):
         """
         case specified value as following:
         /root/blackbird.log
@@ -302,7 +183,7 @@ class TestValidateHelpersIsLog(ConfigReaderBase):
 
         ok_(configread.is_log(check_value))
 
-    def is_log_exists_file_test(self):
+    def test_exist_file(self):
         """
         case specified value as following:
         /var/log/blackbird/blackbird.log
@@ -311,11 +192,10 @@ class TestValidateHelpersIsLog(ConfigReaderBase):
         """
         log_file = tempfile.NamedTemporaryFile(dir=self.tmp_dir)
         check_value = log_file.name
-
         eq_(configread.is_log(check_value), check_value)
 
-    @raises(OSError)
-    def is_log_cannot_write_file_test(self):
+    @raises(validate.VdtValueError)
+    def test_cannot_write_file(self):
         """
         case specified value as following:
         /var/log/messages
@@ -325,21 +205,23 @@ class TestValidateHelpersIsLog(ConfigReaderBase):
         log_file = tempfile.NamedTemporaryFile(dir=self.tmp_dir)
         check_value = log_file.name
         os.chmod(check_value, 0000)
-
         ok_(configread.is_log(check_value))
 
-    def is_log_exists_dir_test(self):
+    def test_exist_dir(self):
         """
         case specified value as following:
         /tmp
         * specified value is directory.
         * execution user has write permission.
         """
-        check_value = os.path.join(self.tmp_dir, self.log_name)
-        eq_(configread.is_log(check_value), check_value)
+        check_value = os.path.dirname(__file__)
+        eq_(
+            configread.is_log(check_value),
+            os.path.join(check_value, self.log_name)
+        )
 
-    @raises(OSError)
-    def is_log_cannot_write_dir_test(self):
+    @raises(validate.VdtValueError)
+    def test_cannot_write_dir(self):
         """
         case specified value as following:
         /var/log
@@ -352,7 +234,7 @@ class TestValidateHelpersIsLog(ConfigReaderBase):
         ok_(configread.is_log(log_dir))
 
     @raises(validate.VdtTypeError)
-    def is_log_valid_dir_is_file_test(self):
+    def test_assume_file_to_dir(self):
         """
         case specified value as following:
         /var/log/messages/blackbird.log
@@ -363,11 +245,10 @@ class TestValidateHelpersIsLog(ConfigReaderBase):
         """
         log_dir = tempfile.NamedTemporaryFile(dir=self.tmp_dir)
         check_value = os.path.join(log_dir.name, self.log_name)
-
         ok_(configread.is_log(check_value))
 
-    @raises(IOError)
-    def is_log_valid_dir_not_exists_test(self):
+    @raises(validate.VdtValueError)
+    def test_non_exist_dir_with_file(self):
         """
         case specified value as following:
         /blackbird/blackbird.log
@@ -385,7 +266,7 @@ class TestValidateHelpersIsLog(ConfigReaderBase):
 class TestValidateHelperIsUser(ConfigReaderBase):
 
     def __init__(self):
-        self.valid_username = 'root'
+        self.valid_username = 'nobody'
         self.valid_uid = 0
         self.invalid_username = 'hogehoge'
         self.invalid_uid = 655355
@@ -405,10 +286,10 @@ class TestValidateHelperIsUser(ConfigReaderBase):
         configread.is_user(self.invalid_uid)
 
 
-class TestValidateHelperIsUser(ConfigReaderBase):
+class TestValidateHelperIsGroup(ConfigReaderBase):
 
     def __init__(self):
-        self.valid_groupname = 'root'
+        self.valid_groupname = 'nobody'
         self.valid_gid = 0
         self.invalid_groupname = 'hogehoge'
         self.invalid_gid = 655355

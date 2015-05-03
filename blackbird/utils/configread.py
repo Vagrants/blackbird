@@ -4,7 +4,6 @@ Read config file(default: conf/defaults.cfg)
 Default config file name is hard-corded.
 """
 import configobj
-import errno
 import glob
 import grp
 import os
@@ -13,8 +12,10 @@ import pwd
 import sys
 import validate
 
+import blackbird.utils.error
 from blackbird.utils import base as base
 from blackbird.utils import helpers
+
 
 
 class JobObserver(base.Observer):
@@ -55,10 +56,9 @@ class ConfigReader(base.Subject):
         self.config = self._configobj_factory(infile)
 
         # validate config file
-        self._read_include()
-        self.config['global'].update(self._set_default_module_dir())
-        self._global_validate()
-        self._validate()
+        self._merge_includes()
+        # TODO: remove this
+        self.config['global'].update(self.get_default_module_dir())
 
         # notify observers
         self._observers = []
@@ -92,62 +92,80 @@ class ConfigReader(base.Subject):
                                    _inspec=_inspec
                                    )
 
-    def _set_include(self):
+    def _get_global_include_abs_path(self, path):
         """
-        self.config['global']['include']
-        must be relative path from "conf/defaults.cfg"
-        or absolute path.
-        This method returns value after converting to absolute path.
-        And this function validate self.config['global']['include'].
-        Check whether File path that is specified by include option exists.
-        Specially, include option is validated by ConfigReader._set_include().
+        Get a value after converting to absolute path.
+        Becoming different from other parameter,
+        validation of `include` parameter is complex.
+        Before other validation(at first) this method is called to merge to one configuration.
 
-        This method is called by ConfigReader._read_include().
+        :param str path: You can specify relative path and absolute path ,too.
+        :rtype: str
+        :return: absolute path
         """
+        if not os.path.isabs(path):
+            path = os.path.abspath(path)
 
-        # If include option is relative path, convert absolute path.
-        if not os.path.isabs(self.config['global']['include']):
-            include = self.config['global']['include']
-            default = os.path.dirname(os.path.abspath(self.config.filename))
-            self.config['global']['include'] = os.path.join(default,
-                                                            include
-                                                            )
+        if os.path.isdir(path) or path.endswith('/'):
+            path = os.path.join(path, '*')
 
-        if os.path.isdir(self.config['global']['include']):
-            directory = self.config['global']['include']
-            self.config['global']['include'] = os.path.join(directory, '*')
+        return path
+
+    def _validate_global_include(self, path):
+        """
+        Normally validation method is writen in each validation of parameters.
+        But `include` of global section needs to be read before validation.
+
+        :param str path: absolute path
+        :rtype: bool
+        :return: If given path passes validation, returns True.
+        """
+        if not path.endswith('/'):
+            path = os.path.dirname(path)
+
+        if os.path.exists(path):
+            if not os.access(path, os.R_OK):
+                raise blackbird.utils.error.BlackbirdError(
+                    message=(
+                        '{0}: Permission denied.'
+                        ''.format(path)
+                    )
+                )
+
         else:
-            directory = os.path.split(self.config['global']['include'])[0]
+            raise blackbird.utils.error.BlackbirdError(
+                message=(
+                    '{0}: No such file or directory.'
+                    ''.format(path)
+                )
+            )
 
-        if os.path.exists(directory):
-            if not os.access(directory, os.R_OK):
-                err_message = ('{directory}: Permission denied.'
-                               ''.format(directory=directory)
-                               )
-                raise OSError(errno.EACCES, err_message)
+        return True
 
-        else:
-            err_message = ('{directory}: No such file or directory.'
-                           ''.format(directory=directory)
-                           )
-            raise IOError(errno.ENOENT, err_message)
+    def get_global_include(self):
+        return self.config['global'].get('include')
 
-    def _read_include(self):
+    def set_global_include(self, path):
+        self.config['global']['include'] = path
+
+    def _merge_includes(self):
         """
         If "include" option exists in "default.cfg",
         read the file(glob-match) in the directory.
         """
-        if 'include' in self.config['global']:
-            self._set_include()
+        raw_include_path = self.get_global_include()
+        if raw_include_path:
+            abs_include_path = self._get_global_include_abs_path(raw_include_path)
+            self._validate_global_include(abs_include_path)
+            self.set_global_include(abs_include_path)
 
-            include_files = glob.glob(self.config['global']['include'])
-
-            for infile in include_files:
-                cfg = self._configobj_factory(infile=infile)
-                self.config.merge(cfg)
+            for infile in glob.glob(abs_include_path):
+                self.config.merge(
+                    self._configobj_factory(infile=infile)
+                )
 
     def register(self, observers):
-        u"""
+        """
         Concrete method of Subject.register().
         Register observers as an argument to self.observers.
         """
@@ -186,7 +204,7 @@ class ConfigReader(base.Subject):
                 self._observers.remove(self._observers[index])
             except ValueError:
                 # logging
-                print('{observer} not in list...'.format(observer))
+                print('{observer} not in list...'.format(observers))
 
         else:
             err_message = ('ConfigReader.register support'
@@ -207,7 +225,7 @@ class ConfigReader(base.Subject):
         for observer in self._observers:
             observer.update(name, job)
 
-    def _set_default_module_dir(self):
+    def get_default_module_dir(self):
         """
         Default "module_dir" is "./plugins" and "/opt/blackbird/plugins".
         "./plugins" is relative path from ./sr71.py.
@@ -215,15 +233,11 @@ class ConfigReader(base.Subject):
         Plugins under the "module_dir" is written about each job.
         """
 
-        default_module_dir1 = './plugins'
+        default_module_dir1 = os.path.join(
+            os.path.abspath(os.path.curdir),
+            'plugins'
+        )
         default_module_dir2 = '/opt/blackbird/plugins'
-
-        if not os.path.exists('./plugins'):
-            default_module_dir1 = os.path.join(
-                os.path.dirname(__file__),
-                os.pardir,
-                'plugins',
-            )
 
         if 'module_dir' in self.config['global']:
             default_module_dir2 = self.config['global']['module_dir']
@@ -232,7 +246,7 @@ class ConfigReader(base.Subject):
         option = {'module_dir': module_dirs}
         return option
 
-    def _global_validate(self):
+    def global_validate(self):
         """
         Validate only global section.
         The options in global section
@@ -479,7 +493,7 @@ class ConfigReader(base.Subject):
 
         return configspec
 
-    def _validate(self):
+    def validate(self):
         """
         validate whether value in config file is correct.
         """
@@ -566,10 +580,11 @@ class NotSupportedError(ValueError):
 
 def is_dir(value):
     """
-    This function checks whether given path as argument exists,
-    and whether direcoty.
+    This function checks whether given path as argument exists.
+    :param str value: Assumed directory path
+    :rtype: str
+    :return: If given value is valid, retuning given value.
     """
-
     value = os.path.expanduser(value)
     value = os.path.expandvars(value)
     value = os.path.abspath(value)
@@ -613,7 +628,7 @@ def extend_is_dir(value, minimum=None, maximum=None):
 def is_log(value):
     """
     This function checks whether file path
-    that is specified at "log_file" option eixsts,
+    that is specified at "log_file" option exists,
     whether write permission to the file path.
 
     Return the following value:
@@ -681,7 +696,6 @@ def is_log(value):
 
     else:
         directory = os.path.split(value)[0]
-        log_file = os.path.split(value)[0]
 
         if os.path.isdir(directory):
 

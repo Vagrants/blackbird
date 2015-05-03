@@ -51,6 +51,8 @@ class BlackBird(object):
             _config = configread.ConfigReader(
                 self.args.config, self.observers
             )
+            _config.global_validate()
+            _config.validate()
         except Exception as error:
             raise BlackbirdError(error)
 

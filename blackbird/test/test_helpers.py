@@ -6,7 +6,7 @@ import sys
 import shutil
 from nose.tools import eq_
 
-from utils import helpers
+from blackbird.utils import helpers
 
 
 class TestImport(object):

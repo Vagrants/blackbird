@@ -58,7 +58,7 @@ class ConfigReader(base.Subject):
         # validate config file
         self._merge_includes()
         # TODO: remove this
-        self.config['global'].update(self._get_default_module_dir())
+        self.config['global'].update(self.get_default_module_dir())
 
         # notify observers
         self._observers = []
@@ -145,7 +145,7 @@ class ConfigReader(base.Subject):
     def get_global_include(self):
         return self.config['global'].get('include')
 
-    def _set_global_include(self, path):
+    def set_global_include(self, path):
         self.config['global']['include'] = path
 
     def _merge_includes(self):
@@ -157,7 +157,7 @@ class ConfigReader(base.Subject):
         if raw_include_path:
             abs_include_path = self._get_global_include_abs_path(raw_include_path)
             self._validate_global_include(abs_include_path)
-            self._set_global_include(abs_include_path)
+            self.set_global_include(abs_include_path)
 
             for infile in glob.glob(abs_include_path):
                 self.config.merge(
@@ -225,7 +225,7 @@ class ConfigReader(base.Subject):
         for observer in self._observers:
             observer.update(name, job)
 
-    def _get_default_module_dir(self):
+    def get_default_module_dir(self):
         """
         Default "module_dir" is "./plugins" and "/opt/blackbird/plugins".
         "./plugins" is relative path from ./sr71.py.
@@ -233,15 +233,11 @@ class ConfigReader(base.Subject):
         Plugins under the "module_dir" is written about each job.
         """
 
-        default_module_dir1 = './plugins'
+        default_module_dir1 = os.path.join(
+            os.path.abspath(os.path.curdir),
+            'plugins'
+        )
         default_module_dir2 = '/opt/blackbird/plugins'
-
-        if not os.path.exists('./plugins'):
-            default_module_dir1 = os.path.join(
-                os.path.dirname(__file__),
-                os.pardir,
-                'plugins',
-            )
 
         if 'module_dir' in self.config['global']:
             default_module_dir2 = self.config['global']['module_dir']
@@ -584,10 +580,11 @@ class NotSupportedError(ValueError):
 
 def is_dir(value):
     """
-    This function checks whether given path as argument exists,
-    and whether direcoty.
+    This function checks whether given path as argument exists.
+    :param str value: Assumed directory path
+    :rtype: str
+    :return: If given value is valid, retuning given value.
     """
-
     value = os.path.expanduser(value)
     value = os.path.expandvars(value)
     value = os.path.abspath(value)
@@ -631,7 +628,7 @@ def extend_is_dir(value, minimum=None, maximum=None):
 def is_log(value):
     """
     This function checks whether file path
-    that is specified at "log_file" option eixsts,
+    that is specified at "log_file" option exists,
     whether write permission to the file path.
 
     Return the following value:
@@ -699,7 +696,6 @@ def is_log(value):
 
     else:
         directory = os.path.split(value)[0]
-        log_file = os.path.split(value)[0]
 
         if os.path.isdir(directory):
 

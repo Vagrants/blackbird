@@ -30,7 +30,7 @@ setup(
         "lockfile",
         "logilab-astng",
         "logilab-common",
-        "python-daemon",
+        "python-daemon==1.6",
     ],
     tests_require=[
         'nose'

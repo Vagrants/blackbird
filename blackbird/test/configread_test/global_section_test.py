@@ -9,7 +9,7 @@ import validate
 
 from nose.tools import eq_, ok_, raises
 
-from blackbird.tests.configread_test.base import ConfigReaderBase
+from blackbird.test.configread_test.base import ConfigReaderBase
 from blackbird.utils import configread
 from blackbird.utils import argumentparse
 from blackbird.utils.configread import ConfigReader

@@ -5,7 +5,7 @@ import os
 import shutil
 import tempfile
 
-from blackbird.tests.configread_test import TMP_DIR
+from blackbird.test.configread_test import TMP_DIR
 
 
 class ConfigReaderBase(object):

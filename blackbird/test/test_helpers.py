@@ -19,16 +19,16 @@ class TestImport(object):
     def setup(self):
         u"""
         setup module name and class name.
-        And consider virtual package as tests/tmp/pkg/testmodule.py
+        And consider virtual package as test/tmp/pkg/testmodule.py
         """
 
         self.module_name = 'pkg.testmodule'
         self.class_name = 'TestClass'
 
         # Create dir and module for test.
-        self.tmp_dir = 'tests/tmp'
+        self.tmp_dir = 'test/tmp'
         os.mkdir(self.tmp_dir)
-        pkg_dir = 'tests/tmp/pkg'
+        pkg_dir = 'test/tmp/pkg'
         os.mkdir(pkg_dir)
         module_name = 'testmodule.py'
 

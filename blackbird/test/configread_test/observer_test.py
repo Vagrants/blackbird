@@ -5,7 +5,7 @@ configread.JobObserver tests
 
 from nose.tools import ok_, raises
 
-from blackbird.tests.configread_test.base import TmpPluginBase
+from blackbird.test.configread_test.base import TmpPluginBase
 from blackbird.utils.configread import ConfigReader
 from blackbird.utils.configread import JobObserver
 from blackbird.utils.configread import NotSupportedError

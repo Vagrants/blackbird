@@ -8,7 +8,7 @@ import tempfile
 
 from nose.tools import assert_false, ok_
 
-from blackbird.tests.configread_test.base import TmpPluginBase
+from blackbird.test.configread_test.base import TmpPluginBase
 from blackbird.utils.configread import ConfigReader
 
 

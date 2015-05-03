@@ -20,12 +20,12 @@ class TestJobCreater(object):
         self.config = None
         self.jobs = None
         self.queue = None
-        self.test_dir = 'tests'
+        self.test_dir = 'test'
 
     def teardown(self):
 
         # remove dir for test.
-        tmp_dirs = glob.glob('tests/tmp*')
+        tmp_dirs = glob.glob('test/tmp*')
 
         for entry in tmp_dirs:
             os.removedirs(entry)

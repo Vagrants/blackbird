@@ -41,7 +41,6 @@ class TestConfigReaderAddDefaultModuleDir(object):
             infile=infile
         )
         module_dirs = test_config.config['global']['module_dir']
-        print module_dirs
         nose.tools.ok_(
             (
                 len(module_dirs) == 2

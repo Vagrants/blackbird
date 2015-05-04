@@ -57,8 +57,7 @@ class ConfigReader(base.Subject):
 
         # validate config file
         self._merge_includes()
-        # TODO: remove this
-        self.config['global'].update(self.get_default_module_dir())
+        self.add_default_module_dir()
 
         # notify observers
         self._observers = []
@@ -225,26 +224,28 @@ class ConfigReader(base.Subject):
         for observer in self._observers:
             observer.update(name, job)
 
-    def get_default_module_dir(self):
+    def add_default_module_dir(self):
         """
-        Default "module_dir" is "./plugins" and "/opt/blackbird/plugins".
-        "./plugins" is relative path from ./sr71.py.
-        "module_dir" is used in _get_modules().
-        Plugins under the "module_dir" is written about each job.
+        Add directory to store built-in plugins to `module_dir` parameter.
+        Default directory to store plugins is `BLACKBIRD_INSTALL_DIR/plugins`.
+        :rtype: None
+        :return: None
         """
-
-        default_module_dir1 = os.path.join(
+        default_module_dir = os.path.join(
             os.path.abspath(os.path.curdir),
             'plugins'
         )
-        default_module_dir2 = '/opt/blackbird/plugins'
+        module_dir_params = {
+            'module_dir': [default_module_dir]
+        }
 
         if 'module_dir' in self.config['global']:
-            default_module_dir2 = self.config['global']['module_dir']
-
-        module_dirs = [default_module_dir1, default_module_dir2]
-        option = {'module_dir': module_dirs}
-        return option
+            module_dir_params['module_dir'].append(
+                self.config['global']['module_dir']
+            )
+        self.config['global'].update(
+            module_dir_params
+        )
 
     def global_validate(self):
         """

@@ -32,8 +32,7 @@ class TestSetModuleDir(ConfigReaderBase):
         config = ConfigReader(infile=cfg_lines).config
         check_value = os.path.abspath('plugins')
 
-        print os.path.abspath(os.path.curdir)
-
+        os.path.abspath(os.path.curdir)
         ok_(check_value in config['global']['module_dir'],
             msg=('Doesn\'t insert default "module_dir" value.'
                  'All config value: {0}'.format(config)

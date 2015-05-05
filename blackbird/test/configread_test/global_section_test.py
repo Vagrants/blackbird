@@ -12,55 +12,6 @@ from nose.tools import eq_, ok_, raises
 from blackbird.test.configread_test.base import ConfigReaderBase
 from blackbird.utils import configread
 from blackbird.utils import argumentparse
-from blackbird.utils.configread import ConfigReader
-
-
-class TestSetModuleDir(ConfigReaderBase):
-    """
-    Tests suite for ConfigReader._set_default_module_dir().
-    """
-    def nonset_additional_dir_test(self):
-        """
-        ConfigReader._set_default_module_dir() default.
-        Additional dir is None.
-        ConfigReader adds only './threads' to config object.
-        """
-        cfg_lines = (
-            '[global]',
-            ''
-        )
-        config = ConfigReader(infile=cfg_lines).config
-        check_value = os.path.abspath('plugins')
-
-        os.path.abspath(os.path.curdir)
-        ok_(check_value in config['global']['module_dir'],
-            msg=('Doesn\'t insert default "module_dir" value.'
-                 'All config value: {0}'.format(config)
-                 )
-            )
-
-    def set_additional_dir_test(self):
-        """
-        ConfigReader._set_default_module_dir() add dir.
-        Additional dir parameter is exists.
-        May insert default value(./threads)
-        and specified value by using 'module_dir' option
-        into ConfigReader.config['global']['module_dir'].
-        """
-        cfg_lines = (
-            '[global]',
-            'module_dir = {0}/tests_threads'.format(self.tmp_dir)
-        )
-        os.mkdir('{0}/tests_threads'.format(self.tmp_dir))
-
-        config = ConfigReader(infile=cfg_lines).config
-        check_value = '{0}/tests_threads'.format(self.tmp_dir)
-
-        ok_(check_value in config['global']['module_dir'],
-            msg=('Doesn\'t exsist additional "module_dir" value.'
-                 'All config value: {0}'.format(config)
-                 )
-            )
 
 
 class TestValidateHelpersIsDir(ConfigReaderBase):

@@ -14,33 +14,6 @@ from blackbird.utils import configread
 from blackbird.utils import argumentparse
 
 
-class TestValidateHelpersIsDir(ConfigReaderBase):
-    """
-    configread.is_dir() tests. This function is helper function for validation.
-    """
-    def test_exist_directory(self):
-        ok_(
-            configread.is_dir(
-                os.path.dirname(__file__)
-            )
-        )
-
-    @raises(validate.VdtValueError)
-    def test_non_exist_directory(self):
-        ok_(configread.is_dir('/hogehoge'))
-
-    @raises(validate.VdtTypeError)
-    def exist_file_test(self):
-        ok_(configread.is_dir(__file__))
-
-    @raises(validate.VdtValueError)
-    def test_cannot_read_directory(self):
-        check_value = os.path.join(self.tmp_dir, 'test_dir')
-        os.mkdir(check_value, 0000)
-
-        ok_(configread.is_dir(check_value))
-
-
 class TestValidateHelpersIsPid(ConfigReaderBase):
     def __init__(self):
         self.pid_name = 'blackbird.pid'

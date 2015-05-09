@@ -660,6 +660,10 @@ def is_log(value):
            But, if don't use as much as possible if good.
 
            Recommended giving he full path including the file name.
+
+    :param str value: log file path. You can specify not only absolute path but also relational path.
+    :rtype: str
+    :return: Converted absolute log file path.
     """
 
     if value.lower() == 'syslog':

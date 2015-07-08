@@ -1,6 +1,9 @@
 blackbird
 =========
 
+[![Circle CI](https://circleci.com/gh/Vagrants/blackbird/tree/master.svg?style=shield)](https://circleci.com/gh/Vagrants/blackbird/tree/master)
+[![License](https://img.shields.io/badge/license-WTFPL-blue.svg)](http://www.wtfpl.net/about/)
+
 What is blackbird?
 ------------------
 

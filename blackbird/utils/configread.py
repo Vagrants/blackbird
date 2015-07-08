@@ -17,7 +17,6 @@ from blackbird.utils import base as base
 from blackbird.utils import helpers
 
 
-
 class JobObserver(base.Observer):
     """
     This class is Observer for registering JobObjects.
@@ -96,7 +95,8 @@ class ConfigReader(base.Subject):
         Get a value after converting to absolute path.
         Becoming different from other parameter,
         validation of `include` parameter is complex.
-        Before other validation(at first) this method is called to merge to one configuration.
+        Before other validation(at first) this method is called to merge to
+        one configuration.
 
         :param str path: You can specify relative path and absolute path ,too.
         :rtype: str
@@ -154,7 +154,9 @@ class ConfigReader(base.Subject):
         """
         raw_include_path = self.get_global_include()
         if raw_include_path:
-            abs_include_path = self._get_global_include_abs_path(raw_include_path)
+            abs_include_path = self._get_global_include_abs_path(
+                raw_include_path
+            )
             self._validate_global_include(abs_include_path)
             self.set_global_include(abs_include_path)
 
@@ -661,7 +663,8 @@ def is_log(value):
 
            Recommended giving he full path including the file name.
 
-    :param str value: log file path. You can specify not only absolute path but also relational path.
+    :param str value: log file path. You can specify not only absolute path
+           but also relational path.
     :rtype: str
     :return: Converted absolute log file path.
     """

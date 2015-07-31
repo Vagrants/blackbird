@@ -1,6 +1,9 @@
 blackbird
 =========
 
+[![Circle CI](https://circleci.com/gh/Vagrants/blackbird/tree/master.svg?style=shield)](https://circleci.com/gh/Vagrants/blackbird/tree/master)
+[![License](https://img.shields.io/badge/license-WTFPL-blue.svg)](http://www.wtfpl.net/about/)
+
 What is blackbird?
 ------------------
 
@@ -123,8 +126,3 @@ blackbird --config YOUR_CONFIG_FILE_PATH --pid-file ./blackbird.pid --debug-mode
 What do you see on your console\(or terminal\)?
 Perhaps, you can see that blackbird stacks data internal queue.
 
-
-License
--------
-
-`blackbird` is released under the [WTFPL license](http://www.wtfpl.net/) ![WTFPL license logo](http://www.wtfpl.net/wp-content/uploads/2012/12/wtfpl-badge-4.png)

@@ -1,0 +1,17 @@
+machine:
+  timezone:
+    Asia/Tokyo
+  pre:
+    - sudo groupadd nobody
+
+dependencies:
+  override:
+    - python setup.py develop
+    - pip install coverage
+
+test:
+  override:
+    - pep8 **/*.py
+    - (cd blackbird && nosetests --with-coverage --cover-html)
+  post:
+    - mv blackbird/cover $CIRCLE_ARTIFACTS
